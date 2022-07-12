@@ -1,13 +1,16 @@
 # Sports Video Analysis on Large-Scale Data
 
-*[Dekun Wu](http://www.cse.yorku.ca/~hadjisma/)*<sup>1</sup>, 
-*[He Zhao](https://joehezhao.github.io/)*<sup>2</sup>, 
+*[Dekun Wu](http://www.cse.yorku.ca/~hadjisma/)*<sup>1*</sup>, 
+*[He Zhao](https://joehezhao.github.io/)*<sup>2*</sup>, 
 *[Xingce Bao](https://thoth.inrialpes.fr/people/mdvornik/)*<sup>3</sup>, 
 *[Richard P. Wildes](http://www.cse.yorku.ca/~wildes/)*<sup>2</sup>, 
 
 <sup>1</sup>University of Pittsburg &nbsp;&nbsp;
 <sup>2</sup>York University &nbsp;&nbsp; 
 <sup>3</sup>EPFL &nbsp;&nbsp; 
+
+* Equal contribution
+
 <div align="center">
 <img src="img/cvpr_pic1.jpg" width=450px></img>
 </div>
