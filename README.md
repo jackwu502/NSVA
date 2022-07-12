@@ -1,20 +1,18 @@
-# P3IV: Probabilistic Procedure Planning from Instructional Videos with Weak Supervision
+# Sports Video Analysis on Large-Scale Data
 
+*[Dekun Wu](http://www.cse.yorku.ca/~hadjisma/)*<sup>1</sup>, 
 *[He Zhao](https://joehezhao.github.io/)*<sup>1,2</sup>, 
-*[Isma Hadji](http://www.cse.yorku.ca/~hadjisma/)*<sup>1</sup>, 
-*[Nikita Dvornik](https://thoth.inrialpes.fr/people/mdvornik/)*<sup>1</sup>, 
-*[Konstantinos G. Derpanis](https://www.cs.ryerson.ca/kosta/)*<sup>1,2</sup>, 
+*[Xingce Bao](https://thoth.inrialpes.fr/people/mdvornik/)*<sup>1</sup>, 
 *[Richard P. Wildes](http://www.cse.yorku.ca/~wildes/)*<sup>1,2</sup>, 
-*[Allan D. Jepson](https://www.cs.toronto.edu/~jepson/)*<sup>1</sup>,
 
-<sup>1</sup>Samsung AI Centre (SAIC) Toronto &nbsp;&nbsp;
+<sup>1</sup>University of Pittsburg &nbsp;&nbsp;
 <sup>2</sup>York University &nbsp;&nbsp; 
->This research was conducted while He was an intern at SAIC-Toronto and is funded by Samsung Research.
+<sup>3</sup>EPFL &nbsp;&nbsp; 
 <div align="center">
 <img src="img/cvpr_pic1.jpg" width=450px></img>
 </div>
 
-**Abstract**: In this paper, we study the problem of procedure planning in instructional videos. Here, an agent must produce a plausible sequence of actions that can transform the environment from a given start to a desired goal state. When learning procedure planning from instructional videos, most recent work leverages intermediate visual observations as supervision, which requires expensive annotation efforts to localize precisely all the instructional steps in training videos. In contrast, we remove the need for expensive temporal video annotations and propose a weakly supervised approach by learning from natural language instructions. Our model is based on a transformer equipped with a memory module, which maps the start and goal observations to a sequence of plausible actions. Furthermore, we augment our model with a probabilistic generative module to capture the uncertainty inherent to procedure planning, an aspect largely overlooked by previous work. We evaluate our model on three datasets and show our weakly-supervised approach outperforms previous fully supervised state-of-the-art models on multiple metrics.
+**Abstract**: This paper investigates the  modeling of automated machine description on sports video, which has seen much progress recently. Nevertheless, state-of-the-art approaches fall quite short of capturing how human experts analyze sports scenes. There are several major reasons: (1) The used dataset is collected from non-official providers, which naturally creates a gap between models trained on those datasets and real-world applications; (2) previously proposed methods require extensive annotation efforts (i.e., player and ball segmentation at pixel level) on localizing useful visual features to yield acceptable results; (3) very few public datasets are available. In this paper, we propose a novel large-scale NBA dataset for Sports Video Analysis (NSVA) with a focus on captioning, to address the above challenges. We also design a unified approach to process raw videos into a stack of meaningful features with minimum labelling efforts, showing that cross modeling on such features using a transformer architecture leads to strong performance. In addition, we demonstrate the broad application of NSVA by addressing two additional tasks, namely fine-grained sports action recognition and salient player identification.
 
 ## Code Overview
 The following sections contain PyTorch code for running our approach on three datasets reported in this paper: **CrossTask** [1], **COIN** [2] and **NIV** [3]. For each dataset, you can choose between: (i) Using the prepared video features. (ii) Extracting features from scratch (e.g., from raw videos). The second option allows for testing our approach on arbitrary datasets. The **\{dataset\}\_main.py** file for each datasets contains both train and evaluation code, controlled by a hyper-parameter under **if \_\_name\_\_ == \_\_main\_\_** function.
