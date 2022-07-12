@@ -9,7 +9,7 @@
 <sup>2</sup>York University &nbsp;&nbsp; 
 <sup>3</sup>EPFL &nbsp;&nbsp; 
 
-* Equal contribution
+<span>*</span> Equal contribution
 
 <div align="center">
 <img src="img/cvpr_pic1.jpg" width=450px></img>
