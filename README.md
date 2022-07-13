@@ -40,11 +40,26 @@ conda create -n py_univl python=3.6.9 tqdm boto3 requests pandas
 conda activate py_univl
 pip install torch==1.7.1+cu92
 pip install git+https://github.com/Maluuba/nlg-eval.git@master
-'''
-
+```
 This code assumes CUDA support.
 
-## CrossTask
+## Prepare the Dataset 
+Pleaes download features, organized in pickle files, from the following links and put them in the **data** folder.
+```
+TimeSformer          feature: https://...TimeSformer.pickle
+CourtLineSeg         feature: https://...Courtlineseg.pickle
+Ball, Basket, Player feature: https://...BAS_BALL_PA.json
+```
+Note that {Ball, Basket, Player} features are merged together via concatenation.
+
+Please download the following csv/json files and put them in the  **csv** folder.
+```
+train files   : https://...train.csv
+test  files   : https://...test.csv
+descriptions  : https://...description.json
+```
+
+## 
 (i) **Set-up Dataset**. We provide two ways to step-up the dataset for CrossTask [1]. You can **either** use pre-extracted features
 ```
 cd datasets/CrossTask_assets
