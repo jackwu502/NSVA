@@ -76,7 +76,7 @@ python main_task_caption.py --eval -pretrained_weight ./weights/ckpt_caption.pkl
 
 **Results** reproduced from pre-trained model 
 
-| **Video description caption**  | **C**  | **M** | **B@1** | **B@2** | **B@3** | **B@4** | **R_L** |
+| **Description Captioning**  | **C**  | **M** | **B@1** | **B@2** | **B@3** | **B@4** | **R_L** |
 | -----------------------------| ------- | -------- |----------| ----------| ----------| ----------| ----------|
 | **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    | **0.4080**    |**0.3120,**    |**0.2425**    |**0.5101** |
 
@@ -93,7 +93,7 @@ python main_task_action.py --eval -pretrained_weight ./weights/ckpt_action.pkl
 
 **Results** reproduced from pre-trained model 
 
-| **Video action recognition**  | **SuccessRate**  | **mAcc.** | **mIoU** |
+| **Action Recognition**  | **SuccessRate**  | **mAcc.** | **mIoU** |
 | -----------------------------| ------- | -------- |----------| 
 | **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    |
 
@@ -110,7 +110,7 @@ python main_task_identification.py --eval -pretrained_weight ./weights/ckpt_iden
 
 **Results** reproduced from pre-trained model 
 
-| **Video description caption**  | **SuccessRate**  | **mAcc.** | **mIoU** |
+| **Play Identification**  | **SuccessRate**  | **mAcc.** | **mIoU** |
 | -----------------------------| ------- | -------- |----------|
 | **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    | 
 
