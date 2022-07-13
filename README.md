@@ -134,6 +134,10 @@ If you find this code useful in your work then please cite
 }
 ```
 
+## Acknowledgement
+This code base is largely from [UniVL](https://github.com/microsoft/UniVL). Many thanks to the authors.
+
+
 ## Contact
 Please contact Dekun Wu @ dew101@pitts.edu or He Zhao @ zhufl@eecs.yorku.ca, if any issue.
 
