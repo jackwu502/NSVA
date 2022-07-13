@@ -50,17 +50,17 @@ This code assumes CUDA support.
 ## Prepare the Dataset 
 Pleaes download features, organized in pickle files, from the following links and put them in the **data** folder.
 ```
-TimeSformer          feature: https://...TimeSformer.pickle
-CourtLineSeg         feature: https://...Courtlineseg.pickle
-Ball, Basket, Player feature: https://...BAS_BALL_PA.json
+- TimeSformer          feature: [#1589F0](https://...TimeSformer.pickle)
+- CourtLineSeg         feature: https://...Courtlineseg.pickle
+- Ball, Basket, Player feature: https://...BAS_BALL_PA.json
 ```
 Note that {Ball, Basket, Player} features are merged together via concatenation.
 
 Please download the following csv/json files and put them in the  **csv** folder.
 ```
-train files   : https://...train.csv
-test  files   : https://...test.csv
-descriptions  : https://...description.json
+- train files   : https://...train.csv
+- test  files   : https://...test.csv
+- descriptions  : https://...description.json
 ```
 
 ## 
