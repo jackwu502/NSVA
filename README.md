@@ -40,8 +40,8 @@ The following sections contain scripts or PyTorch code for:
 * nlg-eval (Install Java 1.8.0 (or higher) firstly)
 
 ```
-conda create -n py_univl python=3.6.9 tqdm boto3 requests pandas
-conda activate py_univl
+conda create -n sportsformer python=3.6.9 tqdm boto3 requests pandas
+conda activate sportsformer
 pip install torch==1.7.1+cu92
 pip install git+https://github.com/Maluuba/nlg-eval.git@master
 ```
