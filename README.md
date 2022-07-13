@@ -48,7 +48,7 @@ pip install git+https://github.com/Maluuba/nlg-eval.git@master
 This code assumes CUDA support.
 
 ## Prepare the Dataset 
-Pleaes download features, organized in pickle files, from the following links and put them in the **data** folder.
+(1) Pleaes download features, organized in pickle files, from the following links and put them in the **data** folder.
 ```
 - TimeSformer          feature: https://...TimeSformer.pickle
 - CourtLineSeg         feature: https://...Courtlineseg.pickle
@@ -56,7 +56,7 @@ Pleaes download features, organized in pickle files, from the following links an
 ```
 Note that {Ball, Basket, Player} features are merged together via concatenation.
 
-Please download the following csv/json files and put them in the  **csv** folder.
+(2) Please download the following csv/json files and put them in the  **csv** folder.
 ```
 - train files   : https://...train.csv
 - test  files   : https://...test.csv
@@ -69,9 +69,10 @@ Run the following code for training/evaluating video description captioning
 python main_task_caption.py
 ```
 **Results** reproduced from pre-trained model 
-| **Video description caption**                      | **C**  | **M** | **B@1** | **B@2** | **B@3** | **B@4** | **R_L** |
-| -----------------------------| ------- | -------- |----------|
-| **Our full model**                  | **1.1329**   | **0.2420**    | **0.5219**    | **0.4080**    |**0.3120,**    |**0.2425**    |**0.5101**    |
+
+| **Video description caption**  | **C**  | **M** | **B@1** | **B@2** | **B@3** | **B@4** | **R_L** |
+| -----------------------------| ------- | -------- |----------| ----------| ----------| ----------| ----------|
+| **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    | **0.4080**    |**0.3120,**    |**0.2425**    |**0.5101** |
 
 
 ## COIN
