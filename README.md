@@ -21,10 +21,14 @@
 <div align="center">
 <img src="img/ECCV2022_Algorithm.jpg" width=550px></img>
 </div>
-**Approach**: Our approach relies on feature representations extracted from multiple orthogonal perspectives, we adopt the framework of UniVL \cite{UniVL} [1], a network designed for cross feature interactive modeling, as our base model. It consists of four transformer backbones that are responsible for coarse feature encoding (using TimeSformer [2]), fine-grained feature encoding (e.g., basket, ball, players), cross attention and decoding, respectively. 
+
+**Approach**: Our approach relies on feature representations extracted from multiple orthogonal perspectives, we adopt the framework of UniVL [1], a network designed for cross feature interactive modeling, as our base model. It consists of four transformer backbones that are responsible for coarse feature encoding (using TimeSformer [2]), fine-grained feature encoding (e.g., basket, ball, players), cross attention and decoding, respectively. 
 
 ## Code Overview
-The following sections contain PyTorch code for training our approach on NSVA dataset for: (1) video captioning, (2) action recognition and (3) player identification.
+The following sections contain scripts or PyTorch code for:
+A. Download pre-processed NSVA dataset.
+B. Training/evaluation script: (1) video captioning, (2) action recognition and (3) player identification.
+C. Pre-trained weigths.
 
 ## Install Dependencys (Same as UniVL)
 * python==3.6.9
