@@ -25,9 +25,10 @@
 
 ## Code Overview
 The following sections contain scripts or PyTorch code for:
-A. Download pre-processed NSVA dataset.
-B. Training/evaluation script: (1) video captioning, (2) action recognition and (3) player identification.
-C. Pre-trained weigths.
+
+- A. Download pre-processed NSVA dataset.
+- B. Training/evaluation script: (1) video captioning, (2) action recognition and (3) player identification.
+- C. Pre-trained weigths.
 
 ## Install Dependencys (Same as UniVL)
 * python==3.6.9
