@@ -50,7 +50,7 @@ This code assumes CUDA support.
 ## Prepare the Dataset 
 Pleaes download features, organized in pickle files, from the following links and put them in the **data** folder.
 ```
-- TimeSformer          feature: [#1589F0](https://...TimeSformer.pickle)
+- TimeSformer          feature: https://...TimeSformer.pickle
 - CourtLineSeg         feature: https://...Courtlineseg.pickle
 - Ball, Basket, Player feature: https://...BAS_BALL_PA.json
 ```
@@ -63,37 +63,16 @@ Please download the following csv/json files and put them in the  **csv** folder
 - descriptions  : https://...description.json
 ```
 
-## 
-(i) **Set-up Dataset**. We provide two ways to step-up the dataset for CrossTask [1]. You can **either** use pre-extracted features
+## Training for video captioning
+Run the following code for training/evaluating video description captioning
 ```
-cd datasets/CrossTask_assets
-wget https://www.di.ens.fr/~dzhukov/crosstask/crosstask_release.zip
-wget https://www.di.ens.fr/~dzhukov/crosstask/crosstask_features.zip
-wget https://vision.eecs.yorku.ca/WebShare/CrossTask_s3d.zip
-unzip '*.zip'
+python main_task_caption.py
 ```
-**or** extract features from raw video using the following code (* Both options work, pick one to use) 
-```
-cd raw_data_process
-python download_CrossTask_videos.py
-python InstVids2TFRecord_CrossTask.py
-bash lmdb_encode_CrossTask.sh 1 1
-```
-(ii) **Train and Evaluation**. Set the hyper-variable **train** in  CrossTask_main.py (i.e., the one under **if \_\_name\_\_ == \_\_main\_\_**) to either True or False, to choose between training a network or evaluating a pre-trained model. By default, the code will load the used random datasplit (see datasplit.pth in ./checkpoints) as well as our pre-trained weights (included in ./checkpoints folder).
-```
-# Set 'train' to (True, False) and then
-python CrossTask_main.py
-```
-(iii) **Results** reproduced from pre-trained model (Numbers may **vary** from runs to runs, due to probalistic sampling)
-| **Prediction Horizon T = 3**                      | **Success Rate**  | **mean Accuracy** | **mIoU** |
+**Results** reproduced from pre-trained model 
+| **Video description caption**                      | **C**  | **M** | **B@1** | **B@2** | **B@3** | **B@4** | **R_L** |
 | -----------------------------| ------- | -------- |----------|
-| **Viterbi**                  | **23.40**   | **52.71**    | **73.31**    | 
-| **Argmax**                   | 22.27   | 52.64    | 73.28    | 
+| **Our full model**                  | **1.1329**   | **0.2420**    | **0.5219**    | **0.4080**    |**0.3120,**    |**0.2425**    |**0.5101**    |
 
-<!-- | **Prediction Horizon T = 3**                      | **Success Rate**  | **mean Accuracy** | **mIoU** | **NLL** | **ModeCoverPrecision** | **ModeCoverRecall** |
-| -----------------------------| ------- | -------- |----------|----------|----------|----------|
-| **Viterbi**                  | **23.40**   | **52.71**    | **73.31**    |  4.13 | 35.62 | 66.03|
-| **Argmax**                   | 22.27   | 52.64    | 73.28    | - | - | - | -->
 
 ## COIN
 (i) **Set-up Dataset**. Similarly, to use COIN dataset [2] on our approach, we provide pre-extracted features
