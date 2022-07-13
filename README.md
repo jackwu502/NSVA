@@ -10,7 +10,6 @@
 <sup>3</sup>EPFL &nbsp;&nbsp; 
 
 <span>*</span> Equal contribution
-
 <div align="center">
 <img src="img/ECCV2022_TeaserFigure.jpg" width=450px></img>
 </div>
@@ -64,92 +63,81 @@ Note that {Ball, Basket, Player} features are merged together via concatenation.
 ```
 
 ## Training for video captioning
-Run the following code for training/evaluating video description captioning
+Run the following code for training/evaluating from scratch video description captioning
 ```
 python main_task_caption.py
 ```
+
+Or evalute with our pre-trained model at **weights** folder:
+```
+python main_task_caption.py --eval -pretrained_weight ./weights/ckpt_caption.pkl
+```
+
 **Results** reproduced from pre-trained model 
 
 | **Video description caption**  | **C**  | **M** | **B@1** | **B@2** | **B@3** | **B@4** | **R_L** |
 | -----------------------------| ------- | -------- |----------| ----------| ----------| ----------| ----------|
 | **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    | **0.4080**    |**0.3120,**    |**0.2425**    |**0.5101** |
 
+## Training for action recognition
+Run the following code for training/evaluating from scratch video description captioning
+```
+python main_task_action.py
+```
 
-## COIN
-(i) **Set-up Dataset**. Similarly, to use COIN dataset [2] on our approach, we provide pre-extracted features
+Or evalute with our pre-trained model at **weights** folder:
 ```
-cd datasets/CrossTask_assets
-wget https://vision.eecs.yorku.ca/WebShare/COIN_s3d.zip
-unzip '*.zip'
+python main_task_action.py --eval -pretrained_weight ./weights/ckpt_action.pkl
 ```
-or we support extracting features from raw video
+
+**Results** reproduced from pre-trained model 
+
+| **Video action recognition**  | **SuccessRate**  | **mAcc.** | **mIoU** |
+| -----------------------------| ------- | -------- |----------| 
+| **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    |
+
+## Training for player identification
+Run the following code for training/evaluating from scratch video description captioning
 ```
-cd raw_data_process
-python download_COIN_videos.py
-python InstVids2TFRecord_COIN.py
-bash lmdb_encode_COIN.sh 1 1
+python main_task_identification.py
 ```
-(ii) **Train and Evaluation**. The train/evaluation code for COIN is in the same design as before.
+
+Or evalute with our pre-trained model at **weights** folder:
 ```
-python COIN_main.py
+python main_task_identification.py --eval -pretrained_weight ./weights/ckpt_identification.pkl
 ```
-(iii) **Results** reproduced from pre-trained model. Note that figures in below table are slightly higher than those reported in the paper, as this table comes from one random split and paper reports averaged results from five random split.
-| **Prediction Horizon T = 3**                      | **Success Rate**  | **mean Accuracy** | **mIoU** |
+
+**Results** reproduced from pre-trained model 
+
+| **Video description caption**  | **SuccessRate**  | **mAcc.** | **mIoU** |
 | -----------------------------| ------- | -------- |----------|
-| **Viterbi**                  | 16.61   | 25.76    | 73.48    |  
-| **Argmax**                   | 14.05   | 25.82    | 73.14    | 
+| **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    | 
 
-## NIV
-(i) **Set-up Dataset**. For the NIV dataset [3], either use pre-extracted features
-```
-cd datasets/NIV_assets
-wget https://vision.eecs.yorku.ca/WebShare/NIV_s3d.zip
-unzip '*.zip'
-```
-or extract features from raw video by first downloading videos from official project page
-```
-cd datasets/NIV_assets/videos
-wget https://www.di.ens.fr/willow/research/instructionvideos/data_new.tar.gz
-tar -xvzf data_new.tar.gz
-find ./data_new -type f -name “*.mpg” | xargs -iF mv F .
-```
-and then jump to raw_data_process and process raw videos
-```
-cd raw_data_process
-python InstVids2TFRecord_NIV.py
-bash lmdb_encode_NIV.sh 1 1
-```
-(ii) **Train and Evaluation**. The train/evaluation code for NIV is in the same design as before.
-```
-python NIV_main.py
-```
 
-(iii) **Results** reproduced from pre-trained model
-| **Prediction Horizon T = 3**                      | **Success Rate**  | **mean Accuracy** | **mIoU** |
-| -----------------------------| ------- | -------- |----------|
-| **Viterbi**                  | 24.02   | 47.18    | 71.15    |  
-| **Argmax**                   | 15.32   | 43.84    | 71.05    | 
+## Video downloading tools
+If you would like to download the raw mp4 videos, you can use the following code
+```
+```
 
 ## Citation
 
 If you find this code useful in your work then please cite
 
 ```bibtex
-@inproceedings{he2022p3iv,
-  title={P3IV: Probabilistic Procedure Planning from Instructional Videos with Weak Supervision},
-  author={He, Zhao and Hadji, Isma and Nikita, Dvornik and Konstantinos, G., Derpanis and Richard, P., Wildes and Allan, D., Jepson},
-  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
-  month = {June.},
+@inproceedings{dew2022sports,
+  title={Sports Video Analysis on Large-Scale Data},
+  author={Wu, Dekun and Zhao, He and Bao, Xingce and Wildes, Richard P.},
+  booktitle={ECCV},
+  month = {Oct.},
   year={2022}
 }
 ```
 
 ## Contact
-Please contact He Zhao @ zhufl@eecs.yorku.ca if any issue.
+Please contact Dekun Wu @ dew101@pitts.edu or He Zhao @ zhufl@eecs.yorku.ca, if any issue.
 
 ## References
-[1] D. Zhukov et al. "Cross-task weakly supervised learning from instructional videos." CVPR'19.
+[1] H. Luo et al. "UniVL: A Unified Video and Language Pre-Training Model for Multimodal Understanding and Generation
+" Arxiv'2020.
 
-[2] Y. Tang et al. "COIN: A large-scale dataset for comprehensive instructional video analysis." CVPR'19
-
-[3] JB. Alayrac et al. "Unsupervised learning from narrated instruction videos." CVPR'16.
+[2] G Bertasiuset al. "Is space-time attention all you need for video understanding?." ICML'2021
