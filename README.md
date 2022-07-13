@@ -24,10 +24,21 @@
 ## Code Overview
 The following sections contain PyTorch code for running our approach on three datasets reported in this paper: **CrossTask** [1], **COIN** [2] and **NIV** [3]. For each dataset, you can choose between: (i) Using the prepared video features. (ii) Extracting features from scratch (e.g., from raw videos). The second option allows for testing our approach on arbitrary datasets. The **\{dataset\}\_main.py** file for each datasets contains both train and evaluation code, controlled by a hyper-parameter under **if \_\_name\_\_ == \_\_main\_\_** function.
 
-## Install Dependency
-* `conda create --channel conda-forge --name procedureFormer python=3.7.3`
-* `conda activate procedureFormer`
-* `conda install --file requirements.txt`
+## Install Dependencys (Same as UniVL)
+* python==3.6.9
+* torch==1.7.0+cu92
+* tqdm
+* boto3
+* requests
+* pandas
+* nlg-eval (Install Java 1.8.0 (or higher) firstly)
+
+```
+conda create -n py_univl python=3.6.9 tqdm boto3 requests pandas
+conda activate py_univl
+pip install torch==1.7.1+cu92
+pip install git+https://github.com/Maluuba/nlg-eval.git@master
+'''
 
 This code assumes CUDA support.
 
