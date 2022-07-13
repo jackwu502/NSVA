@@ -11,7 +11,7 @@
 
 <span>*</span> Equal contribution
 <div align="center">
-<img src="img/ECCV2022_TeaserFigure.jpg" width=450px></img>
+<img src="img/ECCV2022_TeaserFigure.jpg" width=400px></img>
 </div>
 
 **Abstract**: This paper investigates the  modeling of automated machine description on sports video, which has seen much progress recently. Nevertheless, state-of-the-art approaches fall quite short of capturing how human experts analyze sports scenes. In this paper, we propose a novel large-scale NBA dataset for Sports Video Analysis (NSVA) with a focus on captioning, to address the above challenges. We also design a unified approach to process raw videos into a stack of meaningful features with minimum labelling efforts, showing that cross modeling on such features using a transformer architecture leads to strong performance. In addition, we demonstrate the broad application of NSVA by addressing two additional tasks, namely fine-grained sports action recognition and salient player identification.
@@ -30,7 +30,7 @@ The following sections contain scripts or PyTorch code for:
 - B. Training/evaluation script: (1) video captioning, (2) action recognition and (3) player identification.
 - C. Pre-trained weigths.
 
-## Install Dependencys (Same as UniVL)
+## Install Dependencys
 * python==3.6.9
 * torch==1.7.0+cu92
 * tqdm
@@ -63,7 +63,7 @@ Note that {Ball, Basket, Player} features are merged together via concatenation.
 - descriptions  : https://...description.json
 ```
 
-## Training for video captioning
+## Video captioning
 Run the following code for training/evaluating from scratch video description captioning
 ```
 python main_task_caption.py
@@ -80,7 +80,7 @@ python main_task_caption.py --eval -pretrained_weight ./weights/ckpt_caption.pkl
 | -----------------------------| ------- | -------- |----------| ----------| ----------| ----------| ----------|
 | **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    | **0.4080**    |**0.3120,**    |**0.2425**    |**0.5101** |
 
-## Training for action recognition
+## Action recognition
 Run the following code for training/evaluating from scratch video description captioning
 ```
 python main_task_action.py
@@ -97,7 +97,7 @@ python main_task_action.py --eval -pretrained_weight ./weights/ckpt_action.pkl
 | -----------------------------| ------- | -------- |----------| 
 | **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    |
 
-## Training for player identification
+## Player identification
 Run the following code for training/evaluating from scratch video description captioning
 ```
 python main_task_identification.py
