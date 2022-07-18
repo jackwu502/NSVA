@@ -139,7 +139,7 @@ This code base is largely from [UniVL](https://github.com/microsoft/UniVL). Many
 
 
 ## Contact
-Please contact Dekun Wu @ dew101@pitts.edu or He Zhao @ zhufl@eecs.yorku.ca, if any issue.
+Please contact Dekun Wu @ dew104@pitts.edu or He Zhao @ zhufl@eecs.yorku.ca, if any issue.
 
 ## References
 [1] H. Luo et al. "UniVL: A Unified Video and Language Pre-Training Model for Multimodal Understanding and Generation
