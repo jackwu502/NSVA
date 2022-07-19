@@ -66,7 +66,8 @@ Note that {Ball, Basket, Player} features are merged together via concatenation.
 ## Video captioning
 Run the following code for training/evaluating from scratch video description captioning
 ```
-python main_task_caption.py
+python -m torch.distributed.launch --nproc_per_node 4 main_task_caption.py --do_train --num_thread_reader 0 --epochs 20 --batch_size 48 --n_display 300 --train_csv data/ourds_train.44k.csv --val_csv data/ourds_JSFUSION_test.csv --data_path data/ourds_description.json --features_path data/ourds_videos_features.pickle --bbx_features_path data/cls2_ball_basket_sum_concat_original_courtline_fea.pickle --output_dir ckpt_ourds_caption --bert_model bert-base-uncased --do_lower_case --lr 3e-5 --max_words 30 --max_frames 30 --batch_size_val 4 --visual_num_hidden_layers 6 --decoder_num_hidden_layer 3 --cross_num_hidden_layers 3 --datatype ourds --stage_two --video_dim 768 --init_model weight/univl.pretrained.bin --train_tasks 0,0,1,0 --test_tasks 0,0,1,0
+
 ```
 
 Or evalute with our pre-trained model at **weights** folder:
