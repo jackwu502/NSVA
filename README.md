@@ -48,20 +48,7 @@ pip install git+https://github.com/Maluuba/nlg-eval.git@master
 This code assumes CUDA support.
 
 ## Prepare the Dataset 
-(1) Pleaes download features, organized in pickle files, from the following links and put them in the **data** folder.
-```
-- TimeSformer          feature: https://...TimeSformer.pickle
-- CourtLineSeg         feature: https://...Courtlineseg.pickle
-- Ball, Basket, Player feature: https://...BAS_BALL_PA.json
-```
-Note that {Ball, Basket, Player} features are merged together via concatenation.
-
-(2) Please download the following csv/json files and put them in the  **csv** folder.
-```
-- train files   : https://...train.csv
-- test  files   : https://...test.csv
-- descriptions  : https://...description.json
-```
+Information about dataset preparatio can be found at this [link](https://github.com/jackwu502/NSVA/tree/main/Univl_bbxfea/UniVL-main/data).
 
 ## Video captioning
 Run the following code for training/evaluating from scratch video description captioning
