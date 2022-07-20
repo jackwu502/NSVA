@@ -120,6 +120,8 @@ python main_task_identification.py --eval -pretrained_weight ./weights/ckpt_iden
 ## Video downloading tools
 If you would like to download the raw mp4 videos, you can use the following code
 ```
+python collect_videos.py
+
 ```
 
 ## Citation
