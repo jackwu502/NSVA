@@ -2,7 +2,7 @@
 
 *[Dekun Wu](https://jackwu502.github.io/)*<sup>1*</sup>, 
 *[He Zhao](https://joehezhao.github.io/)*<sup>2*</sup>, 
-*[Xingce Bao](https://www.linkedin.com/in/xingce-bao?originalSubdomain=sg)*<sup>3</sup>, 
+*Xingce Bao*<sup>3</sup>, 
 *[Richard P. Wildes](http://www.cse.yorku.ca/~wildes/)*<sup>2</sup>, 
 
 <sup>1</sup>University of Pittsburgh &nbsp;&nbsp;
