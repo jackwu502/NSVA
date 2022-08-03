@@ -30,7 +30,7 @@ The following sections contain scripts or PyTorch code for:
 - B. Training/evaluation script: (1) video captioning, (2) action recognition and (3) player identification.
 - C. Pre-trained weigths.
 
-## Install Dependencys
+## Install Dependencies
 * python==3.6.9
 * torch==1.7.0+cu92
 * tqdm
