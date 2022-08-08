@@ -72,36 +72,28 @@ python -m torch.distributed.launch --nproc_per_node 1 main_task_caption.py --do_
 ## Action recognition
 Run the following code for training/evaluating from scratch video description captioning
 ```
-python main_task_action.py
-```
-
-Or evalute with our pre-trained model at **weights** folder:
-```
-python main_task_action.py --eval -pretrained_weight ./weights/ckpt_action.pkl
+env CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 ./main_task_action_multifeat_multilevel.py
 ```
 
 **Results** reproduced from pre-trained model 
 
 | **Action Recognition**  | **SuccessRate**  | **mAcc.** | **mIoU** |
 | -----------------------------| ------- | -------- |----------| 
-| **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    |
+| **Our full model Coarse** | **60.14**   | **61.20**    | **76.61**    |
+| **Our full model Fine** | **46.88**   | **51.25**    | **57.08**    |
+| **Our full model Event** | **37.67**   | **42.34**    | **46.45**    |
 
 ## Player identification
 Run the following code for training/evaluating from scratch video description captioning
 ```
-python main_task_identification.py
-```
-
-Or evalute with our pre-trained model at **weights** folder:
-```
-python main_task_identification.py --eval -pretrained_weight ./weights/ckpt_identification.pkl
+env CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 ./main_task_player_multifeat.py
 ```
 
 **Results** reproduced from pre-trained model 
 
 | **Play Identification**  | **SuccessRate**  | **mAcc.** | **mIoU** |
 | -----------------------------| ------- | -------- |----------|
-| **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    | 
+| **Our full model** | **4.63**   | **6.97**    | **6.86**    | 
 
 
 ## Video downloading tools
