@@ -9,7 +9,7 @@
 <sup>2</sup>York University &nbsp;&nbsp; 
 <sup>3</sup>EPFL &nbsp;&nbsp; 
 
-<span>*</span> Equal contrSportsFormeribution
+<span>*</span> Equal Contribution
 <div align="center">
 <img src="img/ECCV2022_TeaserFigure.jpg" width=400px></img>
 </div>
