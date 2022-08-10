@@ -60,11 +60,11 @@ python -m torch.distributed.launch --nproc_per_node 1 main_task_caption.py --do_
 
 Or evalute with our pre-trained model at **weights** folder:
 ```
-python -m torch.distributed.launch --nproc_per_node 1 main_task_caption.py --do_eval --num_thread_reader 0 --epochs 20 --batch_size 48 --n_display 300 --train_csv data/ourds_train.44k.csv --val_csv data/ourds_JSFUSION_test.csv --data_path data/ourds_description_only.json --features_path data/ourds_videos_features.pickle --bbx_features_path data/cls2_ball_basket_sum_concat_original_courtline_fea.pickle --output_dir ckpt_ourds_caption --bert_model bert-base-uncased --do_lower_case --lr 3e-5 --max_words 30 --max_frames 30 --batch_size_val 4 --visual_num_hidden_layers 6 --decoder_num_hidden_layer 3 --cross_num_hidden_layers 3 --datatype ourds --stage_two --video_dim 768 --init_model weight/best_model.bin --train_tasks 0,0,1,0 --test_tasks 0,0,1,0
+python -m torch.distributed.launch --nproc_per_node 1 main_task_caption.py --do_eval --num_thread_reader 0 --epochs 20 --batch_size 48 --n_display 300 --train_csv data/ourds_train.44k.csv --val_csv data/ourds_JSFUSION_test.csv --data_path data/ourds_description_only.json --features_path data/ourds_videos_features.pickle --bbx_features_path data/cls2_ball_basket_sum_concat_original_courtline_fea.pickle --output_dir ckpt_ourds_caption --bert_model bert-base-uncased --do_lower_case --lr 3e-5 --max_words 30 --max_frames 30 --batch_size_val 4 --visual_num_hidden_layers 6 --decoder_num_hidden_layer 3 --cross_num_hidden_layers 3 --datatype ourds --stage_two --video_dim 768 --init_model weight/best_model_vcap.bin --train_tasks 0,0,1,0 --test_tasks 0,0,1,0
 
 ```
 
-**Results** reproduced from pre-trained model 
+**Results** reproduced from [pre-trained model](https://www.dropbox.com/s/tq1hffo4ju2nd0o/best_model_vcap.bin) 
 
 | **Description Captioning**  | **C**  | **M** | **B@1** | **B@2** | **B@3** | **B@4** | **R_L** |
 | -----------------------------| ------- | -------- |----------| ----------| ----------| ----------| ----------|
