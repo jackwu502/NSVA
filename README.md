@@ -122,6 +122,9 @@ If you find this code useful in your work then please cite
 ## Acknowledgement
 This code base is largely from [UniVL](https://github.com/microsoft/UniVL). Many thanks to the authors.
 
+## License
+
+The majority of this work is licensed under [Creative Commons Attribution-NonCommercial (CC-BY-NC)license](http://creativecommons.org/licenses/by-nc/4.0/). However portions of the project are available under separate license terms: [UniVL](https://github.com/microsoft/UniVL) are licensed under the [MIT license](https://github.com/jackwu502/NSVA/blob/main/SportsFormer/LICENSE).
 
 ## Contact
 Please contact Dekun Wu @ dew104@pitt.edu or He Zhao @ zhufl@eecs.yorku.ca, if any issue.
