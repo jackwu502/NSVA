@@ -1,4 +1,4 @@
-# Sports Video Analysis on Large-Scale Data
+# Sports Video Analysis on Large-Scale Data （Accepted by ECCV2022）
 
 *[Dekun Wu](https://jackwu502.github.io/)*<sup>1*</sup>, 
 *[He Zhao](https://joehezhao.github.io/)*<sup>2*</sup>, 
