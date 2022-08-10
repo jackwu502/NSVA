@@ -48,7 +48,7 @@ pip install git+https://github.com/Maluuba/nlg-eval.git@master
 This code assumes CUDA support.
 
 ## Prepare the Dataset 
-Information about dataset preparation can be found at this [link](https://github.com/jackwu502/NSVA/tree/main/Univl_bbxfea/UniVL-main/data).
+Information about dataset preparation can be found at this [link](https://github.com/jackwu502/NSVA/tree/main/SportsFormer/data).
 
 ## Video captioning
 Run the following code for training/evaluating from scratch video description captioning
