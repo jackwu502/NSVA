@@ -102,6 +102,7 @@ env CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1
 ## Video downloading tools
 If you would like to download the raw mp4 videos, you can use the following code
 ```
+cd tools
 python collect_videos.py
 ```
 
