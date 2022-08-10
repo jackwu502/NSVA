@@ -124,7 +124,7 @@ This code base is largely from [UniVL](https://github.com/microsoft/UniVL). Many
 
 ## License
 
-The majority of this work is licensed under [Creative Commons Attribution-NonCommercial (CC-BY-NC) license](http://creativecommons.org/licenses/by-nc/4.0/). However portions of the project are available under a separate license term: [UniVL](https://github.com/microsoft/UniVL) is licensed under the [MIT license](https://github.com/jackwu502/NSVA/blob/main/SportsFormer/LICENSE).
+The majority of this work is licensed under [Creative Commons Attribution-NonCommercial (CC-BY-NC) license](http://creativecommons.org/licenses/by-nc/4.0/). However portions of the project are available under a separate license term: [UniVL](https://github.com/microsoft/UniVL) is licensed under the [MIT license](https://github.com/microsoft/UniVL/blob/main/LICENSE).
 
 ## Contact
 Please contact Dekun Wu @ dew104@pitt.edu or He Zhao @ zhufl@eecs.yorku.ca, if any issue.
