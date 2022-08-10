@@ -68,7 +68,7 @@ python -m torch.distributed.launch --nproc_per_node 1 main_task_caption.py --do_
 
 | **Description Captioning**  | **C**  | **M** | **B@1** | **B@2** | **B@3** | **B@4** | **R_L** |
 | -----------------------------| ------- | -------- |----------| ----------| ----------| ----------| ----------|
-| **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    | **0.4080**    |**0.3120,**    |**0.2425**    |**0.5101** |
+| **Our full model** | **1.1329**   | **0.2420**    | **0.5219**    | **0.4080**    |**0.3120**    |**0.2425**    |**0.5101** |
 
 ## Action recognition
 Run the following code for training/evaluating from scratch video description captioning
