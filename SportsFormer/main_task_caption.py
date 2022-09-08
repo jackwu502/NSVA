@@ -367,8 +367,7 @@ def dataloader_ourds_test(args, tokenizer, split_type="test"):
         batch_size=args.batch_size_val,
         num_workers=args.num_thread_reader,
         pin_memory=False,
-        # drop_last=False,
-        drop_last=True,
+        drop_last=False
     )
     return dataloader_ourds, len(ourds_testset)
 
