@@ -600,7 +600,7 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
                 batch_sz,_,bbx_num,max_frame_num,fea_sz = bbx.shape
                 bbx = bbx.permute((0, 1, 3, 2, 4)).reshape(batch_sz,_,max_frame_num,fea_sz*bbx_num)
                 #bbx = model.bbx_fea_fusion_two(bbx)
-            bbx_output = model.get_bbx_output(bbx.squeeze(), bbx_mask.squeeze())
+            bbx_output = model.get_bbx_output(bbx.squeeze(1), bbx_mask.squeeze(1))
 
             # -- Repeat data for beam search
             n_bm = 5 # beam_size
