@@ -53,8 +53,8 @@ def get_args(description='UniVL on Caption Task'):
     court_features_path:        [Timesformer] on plotted courtling seg,     shape [numFrames, dimFeature (768 * 2)]
     bbx_features_path:          [Timesformer] on summed cls2+ball+basket,   shape [numFrames, dimFeature (768)]
     '''
-    # parser.add_argument('--features_path', type=str, default='/local/riemann1/home/zhufl/hdd1/UniVL_processing_code/ourds_videos_timesformer_features.pickle',
-    #                     help='feature path for 2D features')
+    parser.add_argument('--features_path', type=str, default='/local/riemann1/home/zhufl/hdd1/UniVL_processing_code/ourds_videos_timesformer_features.pickle',
+                        help='feature path for 2D features')
     # parser.add_argument('--courtseg_features_path', type=str, default='/local/riemann1/home/zhufl/hdd1/UniVL_processing_code/ourds_courtlineseg_data/ourds_videos_features.pickle',
     #                     help='feature path for 2D features')
     # parser.add_argument('--bbxcls2_features_path', type=str, default='/local/riemann1/home/zhufl/hdd1/UniVL_processing_code/ourds_cls2_data/ourds_videos_features.pickle',
@@ -359,7 +359,7 @@ def dataloader_ourds_train(args, tokenizer):
         max_frames=args.max_frames,
         split_type="train",
         split_task = args.train_tasks,
-        gameid2videoid='/media/chris/hdd1/UniVL_processing_code/gameid_eventid2vid.json'
+        gameid2videoid='./data/gameid_eventid2vid.json',
     )
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(ourds_dataset)
@@ -387,7 +387,7 @@ def dataloader_ourds_test(args, tokenizer, split_type="test"):
         max_frames=args.max_frames,
         split_type=split_type,
         split_task = args.test_tasks,
-        gameid2videoid = '/media/chris/hdd1/UniVL_processing_code/gameid_eventid2vid.json'
+        gameid2videoid='./data/gameid_eventid2vid.json',
     )
 
     test_sampler = SequentialSampler(ourds_testset)
@@ -881,7 +881,7 @@ DATALOADER_DICT["youcook"] = {"train":dataloader_youcook_train, "val":dataloader
 DATALOADER_DICT["msrvtt"] = {"train":dataloader_msrvtt_train, "val":dataloader_msrvtt_test}
 DATALOADER_DICT["ourds"] = {"train":dataloader_ourds_train, "val":dataloader_ourds_test}
 
-action_list = json.load(open('/media/chris/hdd1/UniVL_processing_code/UniVL-main/action_list.json', 'r'))
+action_list = json.load(open('./data/action_list.json', 'r'))
 action_token2full_description = {'action%s'%a_idx:a_l.lower().replace('_',' ').replace('-',' ') for a_idx, a_l in enumerate(action_list)}
 
 def main():
@@ -901,7 +901,7 @@ def main():
     #     if '_features_path' in arg:
     #         feature_tuple[arg.split('_')[0]] = getattr(args, arg)
     # logger.info("***** Using the following Features %s *****", feature_tuple)
-    # num_token = len(feature_tuple) + 1 # Timesformer feature + others
+    num_token = len(feature_tuple) + 1 # Timesformer feature + others
     ## Collect declared feature, to initialize model + dataloader
     """
     Mannually use the default fine-grained features, which are

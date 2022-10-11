@@ -347,6 +347,9 @@ class OURDS_Caption_DataLoader(Dataset):
             if self.fine_tune_extractor == False:
                 video_slice = feature_dict[video_id]
                 
+                # Reshape video_slice to [numframes, featDim]
+                video_slice = np.reshape(np.transpose(video_slice, (1, 0, 2)), (-1, 2 * 768))
+                
                 "Filter out indexes that are all zeros, to make the attention mask correct (following code)"
                 nonzero_index = np.where(np.sum(video_slice, -1) != 0)[0]
                 video_slice = video_slice[nonzero_index]

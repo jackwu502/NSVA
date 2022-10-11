@@ -1,2 +1,11 @@
 .git
 .idea
+data*
+data/*
+weight/
+output/
+__pycache__
+assets
+*.json
+*.pickle
+*.csv
