@@ -4,8 +4,10 @@ data*
 data/*
 weight/
 output/
-__pycache__
+__pycache__/*
+modules
 assets
 *.json
 *.pickle
 *.csv
+*.pyc
