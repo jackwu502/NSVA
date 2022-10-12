@@ -25,6 +25,7 @@ from torch.utils.data import DataLoader
 from dataloaders.dataloader_youcook_caption import Youcook_Caption_DataLoader
 from dataloaders.dataloader_msrvtt_caption import MSRVTT_Caption_DataLoader
 from dataloaders.dataloader_ourds_caption_multifeat import OURDS_Caption_DataLoader
+from eval_utils import *
 from util import *
 from torch import nn
 from torchsummary import summary
@@ -635,8 +636,8 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
     model.eval()
 
     for b_id, batch in enumerate(test_dataloader):
-        if b_id > 1:
-            continue
+        # if b_id > 1:
+        #     continue
 
         feature_tuple, feature_mask_tuple = batch[-2:]
         batch = tuple(t.to(device=device, non_blocking=True) for t in batch[:-2])
@@ -803,6 +804,8 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
     acc_list = []
     mIoU = []
     mInter = []
+    nonzero_pred_list = []
+    nonzero_gt_list = []
 
     """ Calculate the metrics all together """
     for pred, gt in zip(final_pred, final_gt):
@@ -816,8 +819,10 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
         nonzero_pred = pred[:len(nonzero_gt)]
 
         sr_list.append(success_rate(np.expand_dims(nonzero_pred, 0), np.expand_dims(nonzero_gt, 0)))
-        acc_list.append(mean_category_acc(nonzero_pred.tolist(), nonzero_gt.tolist()))
-        mIoU.append(acc_iou(np.expand_dims(nonzero_pred, 0), np.expand_dims(nonzero_gt, 0)))
+        nonzero_pred_list.extend(nonzero_pred.tolist())
+        nonzero_gt_list.extend(nonzero_gt.tolist())
+        # acc_list.append(mean_category_acc(nonzero_pred.tolist(), nonzero_gt.tolist()))
+        mIoU.append(acc_iou_onehot(np.expand_dims(nonzero_pred, 0), np.expand_dims(nonzero_gt, 0)))
         score = []
         for item in nonzero_pred:
             if item in nonzero_gt:
@@ -826,6 +831,8 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
                 score.append(0.0)
         if len(score) > 0:
             mInter.append(sum(score) / len(score))
+            
+    acc_list.append(mean_category_acc(nonzero_pred_list, nonzero_gt_list))
 
     # Save full results
     if test_set is not None and hasattr(test_set, 'iter2video_pairs_dict'):
@@ -1030,7 +1037,9 @@ def main():
                         best_output_model_file = output_model_file
                         logger.info('This is the best model in val set so far, testing test set....')
                         eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalObj=nlgEvalObj)
-                    logger.info("The best model is: {}, the Best-Acc {}, SR {}, mIoU {}, mInter {}".format(best_output_model_file, best_score, sr, mIoU, mInter))
+                    # logger.info("The best model is: {}, the Best-Acc {}, SR {}, mIoU {}, mInter {}".format(best_output_model_file, best_score, sr, mIoU, mInter))
+                    logger.info("The best model is: {}, the Best-Acc {}, SR {}, mIoU {}".format(best_output_model_file, best_score, sr, mIoU))
+
                 else:
                     logger.warning("Skip the evaluation after {}-th epoch.".format(epoch+1))
 

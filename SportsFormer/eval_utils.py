@@ -1,5 +1,8 @@
 import numpy as np
 
+def one_hot(a, num_classes):
+  return np.squeeze(np.eye(num_classes)[a.reshape(-1)])
+
 def ref_success_rate(all_ref, pred, gt, aggregate=True):
     """required format
     Action space is a single integer
@@ -51,6 +54,27 @@ def mean_category_acc(pred, gt):
     from sklearn.metrics import precision_score
     rst = precision_score(gt, pred, average="macro")
     return rst
+
+def acc_iou_onehot(pred, gt, aggregate=True):
+    """required format
+    Action space is a single integer
+    pred: Numpy [batch, seq]
+    gt  : Numpy [batch, seq]
+    """
+    epsn = 1e-6
+    
+    pred_onehot_list = []
+    gt_onehot_list = []
+    for p, g in zip(pred,gt):
+        pred_onehot_list.append(one_hot(p, num_classes=40000))
+        gt_onehot_list.append(one_hot(gt, num_classes=40000))
+    pred = np.logical_or.reduce(np.stack(pred_onehot_list, 0))
+    gt = np.logical_or.reduce(np.stack(gt_onehot_list, 0))
+    
+    intersection = (pred & gt).sum()
+    union = (pred | gt).sum()
+        
+    return (intersection + epsn) / (union + epsn)
 
 def acc_iou(pred, gt, aggregate=True):
     """required format

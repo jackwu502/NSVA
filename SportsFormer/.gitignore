@@ -10,4 +10,4 @@ assets
 *.json
 *.pickle
 *.csv
-*.pyc
+__pycache__/*.pyc
