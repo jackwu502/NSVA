@@ -125,7 +125,7 @@ This code base is largely from [UniVL](https://github.com/microsoft/UniVL). Many
 
 ## License
 
-The majority of this work is licensed under [Creative Commons Attribution-NonCommercial (CC-BY-NC) license](http://creativecommons.org/licenses/by-nc/4.0/). However part of the project is available under a separate license term: [UniVL](https://github.com/microsoft/UniVL) is licensed under the [MIT license](https://github.com/microsoft/UniVL/blob/main/LICENSE).
+The majority of this work which includes code and data is licensed under [Creative Commons Attribution-NonCommercial (CC-BY-NC) license](http://creativecommons.org/licenses/by-nc/4.0/). However part of the project is available under a separate license term: [UniVL](https://github.com/microsoft/UniVL) is licensed under the [MIT license](https://github.com/microsoft/UniVL/blob/main/LICENSE).
 
 ## Contact
 Please contact Dekun Wu @ dew104@pitt.edu or He Zhao @ zhufl@eecs.yorku.ca, if any issue.
