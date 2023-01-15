@@ -100,10 +100,16 @@ env CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1
 
 
 ## Video downloading tools
-If you would like to download the raw mp4 videos, you can use the following code
+If you would like to download the raw mp4 videos that we use for our dataset, you can use the following code
 ```
 cd tools
 python collect_videos.py
+```
+If you want to download other videos from NBA.com, you can use the following code
+
+```
+cd tools
+python download_video_by_gameid_eventid_date.py
 ```
 
 ## Citation
