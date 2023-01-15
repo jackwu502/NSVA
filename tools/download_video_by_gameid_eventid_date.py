@@ -52,7 +52,7 @@ try:
 except requests.exceptions.RequestException:
 
     uuid = '<NO_REPLY_TRY_AGAIN>'
-    print(uuid)
+    print('RequestException')
 
 try:
     r.raise_for_status()
