@@ -4,7 +4,7 @@ import json
 from random import randint
 
 
-#To download a video, you can need to provide three arguments: gameID, eventID and date
+#To download a video, you need to provide three arguments: gameID, eventID and date
 gameID = '0022200605'
 eventID = '67'
 date = '2023/01/09'
