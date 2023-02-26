@@ -741,7 +741,7 @@ DATALOADER_DICT["youcook"] = {"train":dataloader_youcook_train, "val":dataloader
 DATALOADER_DICT["msrvtt"] = {"train":dataloader_msrvtt_train, "val":dataloader_msrvtt_test}
 DATALOADER_DICT["ourds"] = {"train":dataloader_ourds_train, "val":dataloader_ourds_test}
 
-action_list = json.load(open('/disk/0/scratch/jack/nsva/Univl_bbxfea/UniVL-main/action_list.json', 'r'))
+action_list = json.load(open('action_list.json', 'r'))
 action_token2full_description = {'action%s'%a_idx:a_l.lower().replace('_',' ').replace('-',' ') for a_idx, a_l in enumerate(action_list)}
 
 def main():
@@ -856,7 +856,8 @@ def main():
         if args.local_rank == 0:
 
             test_dataloader, test_length = DATALOADER_DICT[args.datatype]["val"](args, tokenizer,split_type='test')
-            model = load_model(-1, args, n_gpu, device, model_file='/home/ubuntu/vcap/content/Univl_bbxfea/ckpt_ourds_caption/pytorch_model.bin.8-sota-bbx+timesformer')
+            model = init_model(args, device, n_gpu, args.local_rank)
+            #model = load_model(-1, args, n_gpu, device, model_file='/home/ubuntu/vcap/content/Univl_bbxfea/ckpt_ourds_caption/pytorch_model.bin.8-sota-bbx+timesformer')
             eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalObj=nlgEvalObj)
 
 if __name__ == "__main__":

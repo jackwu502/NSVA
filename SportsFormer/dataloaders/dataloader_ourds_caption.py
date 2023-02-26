@@ -43,7 +43,7 @@ class OURDS_Caption_DataLoader(Dataset):
         self.max_frames = max_frames
         self.tokenizer = tokenizer
         self.split_task = split_task
-        self.videoid2gameid_eventid = json.load(open('/disk/0/scratch/jack/nsva/Univl_bbxfea/UniVL-main/videoid2gameid_eventid.json','r'))
+        self.videoid2gameid_eventid = json.load(open('videoid2gameid_eventid.json','r'))
         #self.feature_size = self.feature_dict[self.csv['video_id'].values[0]].shape[-1]
         #self.feature_size = 768
         self.feature_size = video_feature['video0'].shape[1]
@@ -105,7 +105,7 @@ class OURDS_Caption_DataLoader(Dataset):
         # train_nn = 35721
         # valid_nn = 4465
         # test_nn = 4465
-        split_dict = json.load(open('/disk/0/scratch/jack/nsva/Univl_bbxfea/UniVL-main/split2video_id_after_videos_combination.json', 'r'))
+        split_dict = json.load(open('split2video_id_after_videos_combination.json', 'r'))
         self.videoid2split = {y:x for x in split_dict.keys() for y in split_dict[x]}
         #split_dict = {"train": video_ids[:train_nn], "val": video_ids[train_nn:train_nn + valid_nn], "test": video_ids[train_nn+valid_nn:]}
         choiced_video_ids = split_dict[split_type]

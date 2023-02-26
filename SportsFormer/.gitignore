@@ -1,6 +1,5 @@
 .git
 .idea
-data*
 data/*
 weight/
 output/
@@ -10,4 +9,4 @@ assets
 *.json
 *.pickle
 *.csv
-__pycache__/*.pyc
+__pycache__/*
