@@ -15,6 +15,7 @@ from nlgeval import NLGEval
 import time
 import argparse
 import json
+import tqdm
 from modules.tokenization import BertTokenizer
 from modules.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 from modules.modeling import UniVL
@@ -35,7 +36,7 @@ global logger
 
 def get_args(description='UniVL on Caption Task'):
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("--do_pretrain", action='store_true', help="Whether to run training.")
+    parser.add_argument("--do_pretrain", action='store_true', help="Whether to run pretraining.")
     parser.add_argument("--use_prefix_tuning", action='store_true', help="Whether to use prefix tuning.")
     parser.add_argument("--do_train", action='store_true', help="Whether to run training.")
     parser.add_argument("--do_eval", action='store_true', help="Whether to run eval on the dev set.")
@@ -374,6 +375,7 @@ def dataloader_ourds_test(args, tokenizer, split_type="test"):
 def convert_state_dict_type(state_dict, ttype=torch.FloatTensor):
     if isinstance(state_dict, dict):
         cpu_dict = OrderedDict()
+            
         for k, v in state_dict.items():
             cpu_dict[k] = convert_state_dict_type(v)
         return cpu_dict
@@ -422,8 +424,6 @@ def train_epoch(epoch, args, model, train_dataloader, tokenizer, device, n_gpu, 
     total_loss = 0
 
     for step, batch in enumerate(train_dataloader):
-
-        
         batch = tuple(t.to(device=device, non_blocking=True) for t in batch)
 
         input_ids, input_mask, segment_ids, video, video_mask, \
@@ -453,7 +453,6 @@ def train_epoch(epoch, args, model, train_dataloader, tokenizer, device, n_gpu, 
 
             optimizer.step()
             optimizer.zero_grad()
-            
             del video, bbx
             global_step += 1
             if global_step % log_step == 0 and local_rank == 0:
@@ -583,7 +582,7 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
     all_result_lists = []
     all_caption_lists = []
     model.eval()
-    for b_id, batch in enumerate(test_dataloader):
+    for b_id, batch in enumerate(tqdm.tqdm(test_dataloader)):
 
 
         batch = tuple(t.to(device, non_blocking=True) for t in batch)
