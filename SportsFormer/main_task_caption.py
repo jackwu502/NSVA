@@ -41,8 +41,8 @@ def get_args(description='UniVL on Caption Task'):
     parser.add_argument("--do_train", action='store_true', help="Whether to run training.")
     parser.add_argument("--do_eval", action='store_true', help="Whether to run eval on the dev set.")
 
-    parser.add_argument('--train_csv', type=str, default='./ourds_train.44k.csv', help='')
-    parser.add_argument('--val_csv', type=str, default='./ourds_JSFUSION_test.csv', help='')
+    parser.add_argument('--train_csv', type=str, default='./ourds_train.44k.csv', help='Which videos are training set')
+    parser.add_argument('--val_csv', type=str, default='./ourds_JSFUSION_test.csv', help='Which videos are test set')
     parser.add_argument('--data_path', type=str, default='./ourds_data_timesformer/ourds_description.json',
                         help='caption and transcription pickle file path')
     parser.add_argument('--features_path', type=str, default='./ourds_videos_features.pickle',
@@ -423,7 +423,7 @@ def train_epoch(epoch, args, model, train_dataloader, tokenizer, device, n_gpu, 
     start_time = time.time()
     total_loss = 0
 
-    for step, batch in enumerate(train_dataloader):
+    for step, batch in enumerate(tqdm.tqdm(train_dataloader)):
         batch = tuple(t.to(device=device, non_blocking=True) for t in batch)
 
         input_ids, input_mask, segment_ids, video, video_mask, \
@@ -841,8 +841,8 @@ def main():
                     if best_score <= Bleu_4:
                         best_score = Bleu_4
                         best_output_model_file = output_model_file
-                        logger.info('This is the best model in val set so far, testing test set....')
-                        eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalObj=nlgEvalObj)
+                        #logger.info('This is the best model in val set so far, testing test set....')
+                        #eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalObj=nlgEvalObj)
                     logger.info("The best model is: {}, the Bleu_4 is: {:.4f}".format(best_output_model_file, best_score))
                 else:
                     logger.warning("Skip the evaluation after {}-th epoch.".format(epoch+1))
