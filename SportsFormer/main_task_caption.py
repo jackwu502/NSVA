@@ -30,6 +30,7 @@ from torch import nn
 from torchsummary import summary
 import pickle5 as pickle
 import re
+import pdb
 torch.distributed.init_process_group(backend="nccl")
 
 global logger
@@ -513,7 +514,7 @@ def collate_active_info(input_tuples, inst_idx_to_position_map, active_inst_idx_
            active_inst_idx_to_position_map
 
 def beam_decode_step(decoder, inst_dec_beams, len_dec_seq,
-                     inst_idx_to_position_map, n_bm, device, input_tuples, decoder_length=None,task_type = None):
+                     inst_idx_to_position_map, n_bm, device, input_tuples, decoder_length=None,task_type = None, blocked_player_indices = []):
 
     assert isinstance(input_tuples, tuple)
 
@@ -531,6 +532,9 @@ def beam_decode_step(decoder, inst_dec_beams, len_dec_seq,
         dec_output = decoder(sequence_output_rpt, visual_output_rpt, input_ids_rpt, input_mask_rpt,
                              video_mask_rpt, next_decoder_ids, next_decoder_mask, bbz_output_rpt, bbx_mask, shaped=True, get_logits=True,task_type = task_type)
         dec_output = dec_output[:, -1, :]
+        for idx in blocked_player_indices:
+            dec_output[:,idx] = -1000000
+
         word_prob = torch.nn.functional.log_softmax(dec_output, dim=1)
         word_prob = word_prob.view(n_active_inst, n_bm, -1)
         return word_prob
@@ -589,12 +593,24 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
 
         input_ids, input_mask, segment_ids, video, video_mask, \
         pairs_masked_text, pairs_token_labels, masked_video, video_labels_index, \
-        pairs_input_caption_ids, pairs_decoder_mask, pairs_output_caption_ids,task_type, bbx, bbx_mask = batch
+        pairs_input_caption_ids, pairs_decoder_mask, pairs_output_caption_ids,task_type, bbx, bbx_mask, player_ids = batch
 
+        # Find possible player vocab indices
+        blocked_player_indices = []
+        eligible_player_indices = []
+        keys = tokenizer.vocab.keys()
+        for i in range(player_ids.shape[1]):
+            token = "player" + str(player_ids[0][i].item())
+            if token in keys:
+                eligible_player_indices.append([tokenizer.vocab[token]])
+
+        for i in range(105, 289):
+            if i not in eligible_player_indices:
+                blocked_player_indices.append(i)
 
 
         with torch.no_grad():
-            sequence_output, visual_output = model.get_sequence_visual_output(input_ids, segment_ids, input_mask, video, video_mask,task_type = task_type)
+            sequence_output, visual_output = model.get_sequence_visual_output(input_ids, segment_ids, input_mask, video, video_mask, task_type = task_type)
             if model.multibbxs:
                 batch_sz,_,bbx_num,max_frame_num,fea_sz = bbx.shape
                 bbx = bbx.permute((0, 1, 3, 2, 4)).reshape(batch_sz,_,max_frame_num,fea_sz*bbx_num)
@@ -639,7 +655,7 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
             for len_dec_seq in range(1, args.max_words + 1):
                 active_inst_idx_list = beam_decode_step(decoder, inst_dec_beams,
                                                         len_dec_seq, inst_idx_to_position_map, n_bm, device,
-                                                        (sequence_output_rpt, visual_output_rpt, input_ids_rpt, input_mask_rpt, video_mask_rpt, bbx_output_rpt, bbx_mask_rpt), task_type = task_type_rpt)
+                                                        (sequence_output_rpt, visual_output_rpt, input_ids_rpt, input_mask_rpt, video_mask_rpt, bbx_output_rpt, bbx_mask_rpt), task_type = task_type_rpt, blocked_player_indices = blocked_player_indices)
 
                 if not active_inst_idx_list:
                     break  # all instances have finished their path to <EOS>
