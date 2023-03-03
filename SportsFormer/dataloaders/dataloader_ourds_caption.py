@@ -42,7 +42,7 @@ class OURDS_Caption_DataLoader(Dataset):
         for clip_id in game_id_to_video_id.keys():
             game_id = clip_id.split("-")[0]
             video_id_to_game_id[game_id_to_video_id[clip_id]] = game_id
-        self.video_id_to_game_id = video_id_to_game_id  
+        self.video_id_to_game_id = video_id_to_game_id
 
         self.fine_tune_extractor = fine_tune_extractor
         if self.fine_tune_extractor == False:
@@ -464,7 +464,21 @@ class OURDS_Caption_DataLoader(Dataset):
         video_id, caption = self.sentences_dict[idx]
 
         game_id = self.video_id_to_game_id[video_id]
-        player_ids = np.asarray(self.game_id_to_players[game_id])
+        player_ids = self.game_id_to_players[game_id]
+
+        # Find possible player vocab indices
+        eligible_player_indices = []
+        keys = self.tokenizer.vocab.keys()
+        for i in range(len(player_ids)):
+            token = "player" + str(player_ids[i])
+            if token in keys:
+                eligible_player_indices.append(self.tokenizer.vocab[token])
+
+        blocked_player_indices = np.zeros(len(self.tokenizer.vocab))
+        for i in range(105, 289):
+            if i not in eligible_player_indices:
+                blocked_player_indices[i] = 1
+        player_ids = blocked_player_indices
 
         video, video_mask, masked_video, video_labels_index = self._get_video([video_id])
         
@@ -486,3 +500,4 @@ class OURDS_Caption_DataLoader(Dataset):
         return pairs_text, pairs_mask, pairs_segment, video, video_mask, \
                pairs_masked_text, pairs_token_labels, masked_video, video_labels_index, \
                pairs_input_caption_ids, pairs_decoder_mask, pairs_output_caption_ids,task_type, bbx, bbx_mask, player_ids
+
