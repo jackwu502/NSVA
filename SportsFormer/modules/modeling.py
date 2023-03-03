@@ -21,6 +21,7 @@ from __future__ import print_function
 
 import logging
 import numpy as np
+import pdb
 from pyrsistent import b
 
 import torch
@@ -225,7 +226,8 @@ class UniVL(UniVLPreTrainedModel):
 
     def forward(self, input_ids, token_type_ids, attention_mask, video, video_mask=None,
                 pairs_masked_text=None, pairs_token_labels=None, masked_video=None, video_labels_index=None,
-                input_caption_ids=None, decoder_mask=None, output_caption_ids=None,task_type=None, bbx=None, bbx_mask=None):
+                input_caption_ids=None, decoder_mask=None, output_caption_ids=None,task_type=None, bbx=None,
+                bbx_mask=None, player_ids=[]):
 
         input_ids = input_ids.view(-1, input_ids.shape[-1])
         token_type_ids = token_type_ids.view(-1, token_type_ids.shape[-1])
@@ -296,10 +298,11 @@ class UniVL(UniVLPreTrainedModel):
                     elif self.task_config.task_type == "caption":
                         decoder_scores, res_tuples = self._get_decoder_score(sequence_output, visual_output,
                                                                              input_ids, attention_mask, video_mask,
-                                                                             input_caption_ids, decoder_mask, bbx_output, bbx_mask, shaped=True,task_type = task_type)
+                                                                             input_caption_ids, decoder_mask, bbx_output, bbx_mask,
+                                                                             shaped=True, task_type = task_type, player_ids=player_ids)
                     else:
                         raise NotImplementedError
-                    
+
                     output_caption_ids = output_caption_ids.view(-1, output_caption_ids.shape[-1])
                     decoder_loss = self.decoder_loss_fct(decoder_scores.view(-1, self.bert_config.vocab_size), output_caption_ids.view(-1))
                     loss += decoder_loss
@@ -467,7 +470,8 @@ class UniVL(UniVLPreTrainedModel):
 
         return retrieve_logits
 
-    def _get_decoder_score(self, sequence_output, visual_output, input_ids, attention_mask, video_mask, input_caption_ids, decoder_mask, bbx_output, bbx_mask, shaped=False,task_type = None):
+    def _get_decoder_score(self, sequence_output, visual_output, input_ids, attention_mask, video_mask, input_caption_ids,
+                           decoder_mask, bbx_output, bbx_mask, shaped=False,task_type = None, player_ids=[]):
 
         if shaped is False:
             input_ids = input_ids.view(-1, input_ids.shape[-1])
@@ -483,10 +487,13 @@ class UniVL(UniVLPreTrainedModel):
         attention_mask = torch.zeros_like(attention_mask)
 
         cross_output, pooled_output, concat_mask = self._get_cross_output(bbx_output, visual_output, bbx_mask, video_mask)
-        decoder_scores = self.decoder(input_caption_ids, encoder_outs=cross_output, answer_mask=decoder_mask, encoder_mask=concat_mask,task_type=task_type)
+
+        # This is the forward pass
+        decoder_scores = self.decoder(input_caption_ids, encoder_outs=cross_output, answer_mask=decoder_mask,
+                                      encoder_mask=concat_mask, task_type=task_type, player_ids=player_ids)
         return decoder_scores, res_tuples
 
-    def decoder_caption(self, sequence_output, visual_output, input_ids, attention_mask, video_mask, input_caption_ids, decoder_mask, bbx_output, bbx_mask, shaped=False, get_logits=False,task_type = None):
+    def decoder_caption(self, sequence_output, visual_output, input_ids, attention_mask, video_mask, input_caption_ids, decoder_mask, bbx_output, bbx_mask, shaped=False, get_logits=False, task_type = None, player_ids=[]):
         if shaped is False:
             input_ids = input_ids.view(-1, input_ids.shape[-1])
             attention_mask = attention_mask.view(-1, attention_mask.shape[-1])
@@ -502,10 +509,12 @@ class UniVL(UniVLPreTrainedModel):
 
         decoder_scores, _ = self._get_decoder_score(sequence_output, visual_output,
                                                     input_ids, attention_mask, video_mask,
-                                                    input_caption_ids, decoder_mask, bbx_output, bbx_mask, shaped=True,task_type = task_type)
+                                                    input_caption_ids, decoder_mask, bbx_output, bbx_mask,
+                                                    shaped=True, task_type = task_type, player_ids=player_ids)
 
         if get_logits:
             return decoder_scores
 
         _, decoder_scores_result = torch.max(decoder_scores, -1)
         return decoder_scores_result
+

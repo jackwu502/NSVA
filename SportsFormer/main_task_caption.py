@@ -30,6 +30,7 @@ from torch import nn
 from torchsummary import summary
 import pickle5 as pickle
 import re
+import pdb
 torch.distributed.init_process_group(backend="nccl")
 
 global logger
@@ -428,13 +429,14 @@ def train_epoch(epoch, args, model, train_dataloader, tokenizer, device, n_gpu, 
 
         input_ids, input_mask, segment_ids, video, video_mask, \
         pairs_masked_text, pairs_token_labels, masked_video, video_labels_index,\
-        pairs_input_caption_ids, pairs_decoder_mask, pairs_output_caption_ids,task_type, bbx, bbx_mask = batch
+        pairs_input_caption_ids, pairs_decoder_mask, pairs_output_caption_ids,task_type, bbx, bbx_mask, player_ids = batch
 
         loss = model(input_ids, segment_ids, input_mask, video.float(), video_mask.float(),
                      pairs_masked_text=pairs_masked_text, pairs_token_labels=pairs_token_labels,
                      masked_video=masked_video, video_labels_index=video_labels_index,
                      input_caption_ids=pairs_input_caption_ids, decoder_mask=pairs_decoder_mask,
-                     output_caption_ids=pairs_output_caption_ids,task_type=task_type, bbx=bbx.float(), bbx_mask=bbx_mask.float())
+                     output_caption_ids=pairs_output_caption_ids,task_type=task_type, bbx=bbx.float(),
+                     bbx_mask=bbx_mask.float(), player_ids=player_ids)
 
         if n_gpu > 1:
             loss = loss.mean()  # mean() to average on multi-gpu.
@@ -513,7 +515,7 @@ def collate_active_info(input_tuples, inst_idx_to_position_map, active_inst_idx_
            active_inst_idx_to_position_map
 
 def beam_decode_step(decoder, inst_dec_beams, len_dec_seq,
-                     inst_idx_to_position_map, n_bm, device, input_tuples, decoder_length=None,task_type = None):
+                     inst_idx_to_position_map, n_bm, device, input_tuples, decoder_length=None,task_type = None, player_ids=[]):
 
     assert isinstance(input_tuples, tuple)
 
@@ -529,8 +531,10 @@ def beam_decode_step(decoder, inst_dec_beams, len_dec_seq,
         next_decoder_mask = torch.ones(next_decoder_ids.size(), dtype=torch.uint8).to(device)
 
         dec_output = decoder(sequence_output_rpt, visual_output_rpt, input_ids_rpt, input_mask_rpt,
-                             video_mask_rpt, next_decoder_ids, next_decoder_mask, bbz_output_rpt, bbx_mask, shaped=True, get_logits=True,task_type = task_type)
+                             video_mask_rpt, next_decoder_ids, next_decoder_mask, bbz_output_rpt, bbx_mask,
+                             shaped=True, get_logits=True,task_type = task_type, player_ids=player_ids)
         dec_output = dec_output[:, -1, :]
+
         word_prob = torch.nn.functional.log_softmax(dec_output, dim=1)
         word_prob = word_prob.view(n_active_inst, n_bm, -1)
         return word_prob
@@ -583,18 +587,14 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
     all_caption_lists = []
     model.eval()
     for b_id, batch in enumerate(tqdm.tqdm(test_dataloader)):
-
-
         batch = tuple(t.to(device, non_blocking=True) for t in batch)
 
         input_ids, input_mask, segment_ids, video, video_mask, \
         pairs_masked_text, pairs_token_labels, masked_video, video_labels_index, \
-        pairs_input_caption_ids, pairs_decoder_mask, pairs_output_caption_ids,task_type, bbx, bbx_mask = batch
-
-
+        pairs_input_caption_ids, pairs_decoder_mask, pairs_output_caption_ids,task_type, bbx, bbx_mask, player_ids = batch
 
         with torch.no_grad():
-            sequence_output, visual_output = model.get_sequence_visual_output(input_ids, segment_ids, input_mask, video, video_mask,task_type = task_type)
+            sequence_output, visual_output = model.get_sequence_visual_output(input_ids, segment_ids, input_mask, video, video_mask, task_type = task_type)
             if model.multibbxs:
                 batch_sz,_,bbx_num,max_frame_num,fea_sz = bbx.shape
                 bbx = bbx.permute((0, 1, 3, 2, 4)).reshape(batch_sz,_,max_frame_num,fea_sz*bbx_num)
@@ -639,7 +639,9 @@ def eval_epoch(args, model, test_dataloader, tokenizer, device, n_gpu, nlgEvalOb
             for len_dec_seq in range(1, args.max_words + 1):
                 active_inst_idx_list = beam_decode_step(decoder, inst_dec_beams,
                                                         len_dec_seq, inst_idx_to_position_map, n_bm, device,
-                                                        (sequence_output_rpt, visual_output_rpt, input_ids_rpt, input_mask_rpt, video_mask_rpt, bbx_output_rpt, bbx_mask_rpt), task_type = task_type_rpt)
+                                                        (sequence_output_rpt, visual_output_rpt, input_ids_rpt, input_mask_rpt,
+                                                         video_mask_rpt, bbx_output_rpt, bbx_mask_rpt),
+                                                        task_type = task_type_rpt, player_ids=player_ids)
 
                 if not active_inst_idx_list:
                     break  # all instances have finished their path to <EOS>

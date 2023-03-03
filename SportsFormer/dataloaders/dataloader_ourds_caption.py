@@ -14,6 +14,7 @@ import random
 import torchvision
 
 import torch.nn.functional as F
+import pdb
 # from visual_utils import Preprocessing, extracting_features, Normalize
 
 class OURDS_Caption_DataLoader(Dataset):
@@ -34,6 +35,15 @@ class OURDS_Caption_DataLoader(Dataset):
     ):
         self.csv = pd.read_csv(csv_path)
         self.data = json.load(open(json_path, 'r'))
+
+        self.game_id_to_players = json.load(open('/home/ubuntu/NSVA/tools/video_id_to_players.json', 'r'))
+        game_id_to_video_id = json.load(open('/home/ubuntu/NSVA/tools/gameid_eventid2vid.json', 'r'))
+        video_id_to_game_id = {}
+        for clip_id in game_id_to_video_id.keys():
+            game_id = clip_id.split("-")[0]
+            video_id_to_game_id[game_id_to_video_id[clip_id]] = game_id
+        self.video_id_to_game_id = video_id_to_game_id  
+
         self.fine_tune_extractor = fine_tune_extractor
         if self.fine_tune_extractor == False:
             self.feature_dict = video_feature
@@ -453,6 +463,9 @@ class OURDS_Caption_DataLoader(Dataset):
     def __getitem__(self, idx):
         video_id, caption = self.sentences_dict[idx]
 
+        game_id = self.video_id_to_game_id[video_id]
+        player_ids = np.asarray(self.game_id_to_players[game_id])
+
         video, video_mask, masked_video, video_labels_index = self._get_video([video_id])
         
         #bbx, bbx_mask, masked_bbx, bbx_labels_index = self._get_bbx([video_id])
@@ -472,4 +485,4 @@ class OURDS_Caption_DataLoader(Dataset):
 
         return pairs_text, pairs_mask, pairs_segment, video, video_mask, \
                pairs_masked_text, pairs_token_labels, masked_video, video_labels_index, \
-               pairs_input_caption_ids, pairs_decoder_mask, pairs_output_caption_ids,task_type, bbx, bbx_mask
+               pairs_input_caption_ids, pairs_decoder_mask, pairs_output_caption_ids,task_type, bbx, bbx_mask, player_ids

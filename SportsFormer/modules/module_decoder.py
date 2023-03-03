@@ -28,6 +28,7 @@ import tarfile
 import tempfile
 import shutil
 import numpy as np
+import pdb
 
 import torch
 from torch import nn
@@ -429,7 +430,7 @@ class DecoderModel(PreTrainedModel):
         self.classifier = DecoderClassifier(config, decoder_word_embeddings_weight)
         self.apply(self.init_weights)
 
-    def forward(self, input_ids, encoder_outs=None, answer_mask=None, encoder_mask=None,task_type=None):
+    def forward(self, input_ids, encoder_outs=None, answer_mask=None, encoder_mask=None, task_type=None, player_ids=[]):
         """
         Args:
             input_ids (LongTensor): previous decoder outputs of shape `(batch, tgt_len)`, for input feeding/teacher forcing
@@ -451,7 +452,7 @@ class DecoderModel(PreTrainedModel):
 
         sz_b, len_s, _ = embedding_output.size()
         subsequent_mask = torch.triu(torch.ones((len_s, len_s), device=embedding_output.device, dtype=embedding_output.dtype), diagonal=1)
-        self_attn_mask = subsequent_mask.unsqueeze(0).expand(sz_b, -1, -1).unsqueeze(1)  # b x 1 x ls x ls
+        self_attn_mask = subsequent_mask.unsqueeze(0).expand(sz_b, -1, -1).unsqueeze(1)  # b x 1 x ls x ls()
         slf_attn_mask = ((1.0 - extended_answer_mask) + self_attn_mask).gt(0).to(dtype=self.dtype)
         self_attn_mask = slf_attn_mask * -10000.0
 
@@ -464,4 +465,17 @@ class DecoderModel(PreTrainedModel):
         sequence_output = decoded_layers[-1]
         cls_scores = self.classifier(sequence_output)
 
+        # Filter out player_ids
+        if player_ids != []:
+            if cls_scores.shape[0] != player_ids.shape[0]:
+                player_ids = player_ids.repeat_interleave(5, 0)
+            cls_scores = cls_scores + player_ids.unsqueeze(1).repeat(1,int(cls_scores.shape[1]),1) * -1000000
+            #for i in range(player_ids.shape[0]):
+            #    batch = player_ids[i]
+            #    for j in range(len(batch)):
+            #        player_id = int(batch[j].item())
+            #        if player_id < 0: break
+            #        cls_scores[i, :, player_id] = -1000000
+
         return cls_scores
+
