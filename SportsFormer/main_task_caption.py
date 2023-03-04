@@ -321,6 +321,40 @@ def dataloader_msrvtt_test(args, tokenizer, split_type="test",):
     )
     return dataloader_msrvtt, len(msrvtt_testset)
 
+class CustomSampler(torch.utils.data.Sampler):
+    def __init__(self, dataset, batch_size):
+        self.batch_size = batch_size
+        self.t1_indices = np.arange(len(dataset.sentences_dict) / 3)
+        self.t2_indices = np.arange(len(dataset.sentences_dict) / 3, 2 * len(dataset.sentences_dict) / 3)
+        self.t3_indices = np.arange(2 * len(dataset.sentences_dict) / 3, len(dataset.sentences_dict))
+        assert(len(self.t1_indices) == len(self.t2_indices))
+        assert(len(self.t1_indices) == len(self.t3_indices))
+        self.len = 3 * len(self.t1_indices)
+
+    def __iter__(self):
+        batch_size = self.batch_size
+        t1_indices, t2_indices, t3_indices = self.t1_indices, self.t2_indices, self.t3_indices
+        np.random.shuffle(t1_indices)
+        np.random.shuffle(t2_indices)
+        np.random.shuffle(t3_indices)
+
+        remainder = len(t1_indices) % batch_size
+        t1_indices = t1_indices[:-remainder]
+        t2_indices = t2_indices[:-remainder]
+        t3_indices = t3_indices[:-remainder]
+        assert(len(t1_indices) % batch_size == 0)
+
+        all_indices = np.concatenate((t1_indices.reshape(-1, batch_size),
+                                      t2_indices.reshape(-1, batch_size),
+                                      t3_indices.reshape(-1, batch_size)), axis=1)
+        np.random.shuffle(all_indices)
+        all_batches = list(all_indices.flatten())
+
+        yield from iter(all_batches)
+
+    def __len__(self):
+        return self.len
+
 def dataloader_ourds_train(args, tokenizer):
     ourds_dataset = OURDS_Caption_DataLoader(
         csv_path=args.train_csv,
@@ -336,15 +370,17 @@ def dataloader_ourds_train(args, tokenizer):
     )
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(ourds_dataset)
+    custom_train_sampler = CustomSampler(ourds_dataset, batch_size=args.batch_size)
     dataloader = DataLoader(
         ourds_dataset,
         batch_size=args.batch_size // args.n_gpu,
         num_workers=args.num_thread_reader,
         pin_memory=False,
-        shuffle=(train_sampler is None),
-        sampler=train_sampler,
+        shuffle=False,
+        sampler=custom_train_sampler,
         drop_last=True,
     )
+
 
     return dataloader, len(ourds_dataset), train_sampler
 
