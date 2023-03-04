@@ -130,9 +130,9 @@ class OURDS_Caption_DataLoader(Dataset):
                     self.video_sentences_dict[itm['video_id']].append(itm['caption'])
             all_train = [id for id, task in enumerate(self.split_task) if task ==1] 
 
-            for vidx,vid in enumerate(choiced_video_ids):
+            for a_t in all_train:
+                for vidx,vid in enumerate(choiced_video_ids):
                 #self.sentences_dict[len(self.sentences_dict)] = (vid, self.video_sentences_dict[vid][0])
-                for a_t in all_train:
                     self.sentences_dict[len(self.sentences_dict)] = (vid, self.video_sentences_dict[vid][a_t])
         elif split_type == "val" or split_type == "test":
             for itm in self.data['sentences']:
