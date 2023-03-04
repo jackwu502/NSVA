@@ -301,8 +301,6 @@ class DecoderLayer(nn.Module):
 
         #     )
 
-
-
         self.t0_emb = torch.nn.Parameter(torch.rand(max(config.preseqlens), max(config.mid_dims)))
         self.t1_emb = torch.nn.Parameter(torch.rand(max(config.preseqlens), max(config.mid_dims)))
         self.t2_emb = torch.nn.Parameter(torch.rand(max(config.preseqlens), max(config.mid_dims)))
@@ -348,6 +346,22 @@ class DecoderLayer(nn.Module):
         dec_output, dec_att_scores = self.enc_attn(slf_output, enc_output, enc_output, dec_enc_attn_mask)
 
 
+        intermediate_output = self.intermediate(dec_output)
+        dec_output = self.output(intermediate_output, dec_output)
+        return dec_output, dec_att_scores
+
+class CustomDecoderLayer(nn.Module):
+    def __init__(self, config):
+        super(CustomDecoderLayer, self).__init__()
+        self.slf_attn = DecoderAttention(config)
+        self.enc_attn = DecoderAttention(config)
+        self.intermediate = BertIntermediate(config)
+        self.output = BertOutput(config)
+
+    def forward(self, dec_input, enc_output, slf_attn_mask=None, dec_enc_attn_mask=None,task_type = None):
+        #decoder self-attend itself
+        slf_output, _ = self.slf_attn(dec_input, dec_input, dec_input, slf_attn_mask)
+        dec_output, dec_att_scores = self.enc_attn(slf_output, enc_output, enc_output, dec_enc_attn_mask)
         intermediate_output = self.intermediate(dec_output)
         dec_output = self.output(intermediate_output, dec_output)
         return dec_output, dec_att_scores
@@ -400,6 +414,25 @@ class Decoder(nn.Module):
             all_dec_att_probs.append(dec_att_scores)
         return all_encoder_layers, all_dec_att_probs
 
+class CustomDecoder(nn.Module):
+    def __init__(self, config):
+        super(CustomDecoder, self).__init__()
+        layer = CustomDecoderLayer(config)
+        self.shared_layers = nn.ModuleList([copy.deepcopy(layer) for _ in range(config.num_decoder_layers - 1)])
+        self.task_layers = nn.ModuleList([copy.deepcopy(layer) for _ in range(3)])
+
+    def forward(self, hidden_states, encoder_outs, self_attn_mask, attention_mask, output_all_encoded_layers=False,task_type= None):
+        dec_att_scores = None
+        all_encoder_layers = []
+        all_dec_att_probs = []
+        for layer_module in self.shared_layers:
+            hidden_states, dec_att_scores = layer_module(hidden_states, encoder_outs, self_attn_mask, attention_mask,task_type)
+        hidden_states, dec_att_scores = self.task_layers[task_type[0].item()](hidden_states, encoder_outs, self_attn_mask, attention_mask,task_type)
+        all_encoder_layers.append(hidden_states)
+        all_dec_att_probs.append(dec_att_scores)
+        return all_encoder_layers, all_dec_att_probs
+
+
 class DecoderClassifier(nn.Module):
     def __init__(self, config, embedding_weights):
         super(DecoderClassifier, self).__init__()
@@ -426,7 +459,7 @@ class DecoderModel(PreTrainedModel):
         self.config = config
         self.max_target_length = config.max_target_embeddings
         self.embeddings = DecoderEmbeddings(config, decoder_word_embeddings_weight, decoder_position_embeddings_weight)
-        self.decoder = Decoder(config)
+        self.decoder = CustomDecoder(config)
         self.classifier = DecoderClassifier(config, decoder_word_embeddings_weight)
         self.apply(self.init_weights)
 

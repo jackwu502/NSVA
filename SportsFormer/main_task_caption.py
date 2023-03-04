@@ -348,7 +348,7 @@ def dataloader_ourds_train(args, tokenizer):
 
     return dataloader, len(ourds_dataset), train_sampler
 
-def dataloader_ourds_test(args, tokenizer, split_type="test"):
+def dataloader_ourds_test(args, tokenizer, split_type="val"):
     ourds_testset = OURDS_Caption_DataLoader(
         csv_path=args.val_csv,
         json_path=args.data_path,
