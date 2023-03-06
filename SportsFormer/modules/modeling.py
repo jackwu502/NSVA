@@ -121,7 +121,7 @@ def check_attr(target_name, task_config):
     return hasattr(task_config, target_name) and task_config.__dict__[target_name]
 
 class UniVL(UniVLPreTrainedModel):
-    def __init__(self, bert_config, visual_config, cross_config, decoder_config, task_config):
+    def __init__(self, bert_config, visual_config, cross_config, decoder_config, task_config, multitask=False):
         super(UniVL, self).__init__(bert_config, visual_config, cross_config, decoder_config)
         self.task_config = task_config
         self.ignore_video_index = -1
@@ -194,7 +194,7 @@ class UniVL(UniVLPreTrainedModel):
                 # Decoder ===>
                 decoder_config = update_attr("decoder_config", decoder_config, "num_decoder_layers",
                                            self.task_config, "decoder_num_hidden_layers")
-                self.decoder = DecoderModel(decoder_config, bert_word_embeddings_weight, bert_position_embeddings_weight)
+                self.decoder = DecoderModel(decoder_config, bert_word_embeddings_weight, bert_position_embeddings_weight, multitask=multitask)
                 # <=== End of Decoder
 
             if self.task_config.do_pretrain:

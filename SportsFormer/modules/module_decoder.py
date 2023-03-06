@@ -454,13 +454,18 @@ class DecoderModel(PreTrainedModel):
             final decoder layer (default: True).
     """
 
-    def __init__(self, config, decoder_word_embeddings_weight, decoder_position_embeddings_weight):
+    def __init__(self, config, decoder_word_embeddings_weight, decoder_position_embeddings_weight, multitask=False, mask=True):
         super(DecoderModel, self).__init__(config)
         self.config = config
         self.max_target_length = config.max_target_embeddings
         self.embeddings = DecoderEmbeddings(config, decoder_word_embeddings_weight, decoder_position_embeddings_weight)
-        self.decoder = CustomDecoder(config)
+        print("Multitask", multitask)
+        if multitask:
+            self.decoder = CustomDecoder(config)
+        else:
+            self.decoder = Decoder(config)
         self.classifier = DecoderClassifier(config, decoder_word_embeddings_weight)
+        self.mask = mask
         self.apply(self.init_weights)
 
     def forward(self, input_ids, encoder_outs=None, answer_mask=None, encoder_mask=None, task_type=None, player_ids=[]):
@@ -499,16 +504,17 @@ class DecoderModel(PreTrainedModel):
         cls_scores = self.classifier(sequence_output)
 
         # Filter out player_ids
-        if player_ids != []:
-            if cls_scores.shape[0] != player_ids.shape[0]:
-                player_ids = player_ids.repeat_interleave(5, 0)
-            cls_scores = cls_scores + player_ids.unsqueeze(1).repeat(1,int(cls_scores.shape[1]),1) * -1000000
-            #for i in range(player_ids.shape[0]):
-            #    batch = player_ids[i]
-            #    for j in range(len(batch)):
-            #        player_id = int(batch[j].item())
-            #        if player_id < 0: break
-            #        cls_scores[i, :, player_id] = -1000000
+        if True:
+            if player_ids != []:
+                if cls_scores.shape[0] != player_ids.shape[0]:
+                    player_ids = player_ids.repeat_interleave(5, 0)
+                cls_scores = cls_scores + player_ids.unsqueeze(1).repeat(1,int(cls_scores.shape[1]),1) * -1000000
+                #for i in range(player_ids.shape[0]):
+                #    batch = player_ids[i]
+                #    for j in range(len(batch)):
+                #        player_id = int(batch[j].item())
+                #        if player_id < 0: break
+                #        cls_scores[i, :, player_id] = -1000000
 
         return cls_scores
 

@@ -118,6 +118,7 @@ def get_args(description='UniVL on Caption Task'):
     parser.add_argument('--t1_postprocessing', action='store_true', help="Whether postprocess output with action type")
 
     parser.add_argument('--stage_two', action='store_true', help="Whether training with decoder.")
+    parser.add_argument('--multitask', action='store_true', help="Use multitask architecture")
     args = parser.parse_args()
 
 
@@ -370,14 +371,15 @@ def dataloader_ourds_train(args, tokenizer):
     )
 
     train_sampler = torch.utils.data.distributed.DistributedSampler(ourds_dataset)
-    custom_train_sampler = CustomSampler(ourds_dataset, batch_size=args.batch_size)
+    if args.multitask:
+        train_sampler = CustomSampler(ourds_dataset, batch_size=args.batch_size)
     dataloader = DataLoader(
         ourds_dataset,
         batch_size=args.batch_size // args.n_gpu,
         num_workers=args.num_thread_reader,
         pin_memory=False,
         shuffle=False,
-        sampler=custom_train_sampler,
+        sampler=train_sampler,
         drop_last=True,
     )
 
@@ -412,7 +414,6 @@ def dataloader_ourds_test(args, tokenizer, split_type="val"):
 def convert_state_dict_type(state_dict, ttype=torch.FloatTensor):
     if isinstance(state_dict, dict):
         cpu_dict = OrderedDict()
-            
         for k, v in state_dict.items():
             cpu_dict[k] = convert_state_dict_type(v)
         return cpu_dict
@@ -444,7 +445,7 @@ def load_model(epoch, args, n_gpu, device, model_file=None):
         # Prepare model
         cache_dir = args.cache_dir if args.cache_dir else os.path.join(str(PYTORCH_PRETRAINED_BERT_CACHE), 'distributed')
         model = UniVL.from_pretrained(args.bert_model, args.visual_model, args.cross_model, args.decoder_model,
-                                       cache_dir=cache_dir, state_dict=model_state_dict, task_config=args)
+                                       cache_dir=cache_dir, state_dict=model_state_dict, task_config=args, multitask=args.multitask)
 
         model.to(device)
     else:
