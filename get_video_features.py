@@ -71,73 +71,71 @@ class VideoMAEImageProcessorTensor(VideoMAEImageProcessor):
         processed_videos = [super(VideoMAEImageProcessorTensor, self).preprocess(list(x), **kwargs) for x in videos]
         return processed_videos
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def main():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Load model
-model = VideoMAEForPreTraining(VideoMAEConfig())
-model.load_state_dict(torch.load("/home/ubuntu/lucas/NSVA/finetuned_model_90masking/model_epoch_1.pt"))
-model.to(device)
-image_processor = VideoMAEImageProcessorTensor.from_pretrained("MCG-NJU/videomae-base")
+    # Load model
+    #model = VideoMAEForPreTraining(VideoMAEConfig())
+    #model.load_state_dict(torch.load("/home/ubuntu/lucas/NSVA/finetuned_model_90masking/model_epoch_1.pt"))
+    model = VideoMAEModel.from_pretrained("MCG-NJU/videomae-base-finetuned-kinetics")
+    model.to(device)
+    image_processor = VideoMAEImageProcessorTensor.from_pretrained("MCG-NJU/videomae-base")
 
-mean = image_processor.image_mean
-std = image_processor.image_std
-resize_to = image_processor.size['shortest_edge']
+    mean = image_processor.image_mean
+    std = image_processor.image_std
+    resize_to = image_processor.size['shortest_edge']
 
-num_frames_to_sample = model.config.num_frames
-sample_rate = 8
-fps = 30
-clip_duration = num_frames_to_sample * sample_rate / fps
+    num_frames_to_sample = model.config.num_frames
+    sample_rate = 8
+    fps = 30
+    clip_duration = num_frames_to_sample * sample_rate / fps
 
 # Validation and evaluation datasets' transformations.
-val_transform = Compose(
-    [
-        Lambda(lambda x: x / 255.0),
-        Normalize(mean, std),
-        Resize((resize_to, resize_to)),
-    ]
-)
+    val_transform = Compose(
+        [
+            Lambda(lambda x: x / 255.0),
+            Normalize(mean, std),
+            Resize((resize_to, resize_to)),
+        ]
+    )
 
-batch_size = 1  # must be 1 for feature extraction
-num_workers = 8
+    batch_size = 1  # must be 1 for feature extraction
+    num_workers = 8
 
-train_dataset = VideoDatasetFeatures(root_dir='/home/ubuntu/shared_data/pbp_videos/train/', transform=val_transform)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    train_dataset = VideoDatasetFeatures(root_dir='/home/ubuntu/shared_data/pbp_videos/train/', transform=val_transform)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-val_dataset = VideoDatasetFeatures(root_dir='/home/ubuntu/shared_data/pbp_videos/val/', transform=val_transform)
-val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    val_dataset = VideoDatasetFeatures(root_dir='/home/ubuntu/shared_data/pbp_videos/val/', transform=val_transform)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-test_dataset = VideoDatasetFeatures(root_dir='/home/ubuntu/shared_data/pbp_videos/test/', transform=val_transform)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    test_dataset = VideoDatasetFeatures(root_dir='/home/ubuntu/shared_data/pbp_videos/test/', transform=val_transform)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-gameid_to_videoid = json.load(open("./tools/gameid_eventid2vid.json"))
+    gameid_to_videoid = json.load(open("./tools/gameid_eventid2vid.json"))
 
-pool_layer = nn.AvgPool1d(1568)
+    pool_layer = nn.AvgPool1d(1568)
 
-features = {}
+    features = {}
 
-for loader in [train_loader, val_loader, test_loader]:
-    for batch_idx, batch in enumerate(tqdm.tqdm(loader)):
-        # Convert the video batch to pixel values and apply normalization
-        video_batch, fname = batch
-        video_id = fname[0].split('/')[-1].split('.')[0]
-        pixel_values = torch.tensor(np.array([x['pixel_values'] for x in image_processor(video_batch.squeeze(0))])).squeeze(1)
-        pixel_values = pixel_values.to(device)
+    with torch.no_grad():
+        for loader in [train_loader, val_loader, test_loader]:
+            for batch_idx, batch in enumerate(tqdm.tqdm(loader)):
+                # Convert the video batch to pixel values and apply normalization
+                video_batch, fname = batch
+                video_id = fname[0].split('/')[-1].split('.')[0]
+                pixel_values = torch.tensor(np.array([x['pixel_values'] for x in image_processor(video_batch.squeeze(0))])).squeeze(1)
+                pixel_values = pixel_values.to(device)
 
-        num_frames = 16
-        num_patches_per_frame = (model.config.image_size // model.config.patch_size) ** 2
-        seq_length = (num_frames // model.config.tubelet_size) * num_patches_per_frame
+                num_frames = 16
+                num_patches_per_frame = (model.config.image_size // model.config.patch_size) ** 2
+                seq_length = (num_frames // model.config.tubelet_size) * num_patches_per_frame
 
-        mask_ratio = 0
-        bool_masked_pos = np.ones(seq_length)
-        mask_num = math.ceil(seq_length * mask_ratio)
-        mask = np.random.choice(seq_length, mask_num, replace=False)
-        bool_masked_pos[mask] = 0
-        bool_masked_pos = torch.as_tensor(bool_masked_pos).bool().unsqueeze(0)
-        bool_masked_pos = torch.cat([bool_masked_pos for _ in range(pixel_values.shape[0])])
+                out = model(pixel_values)
+                feats = pool_layer(out.last_hidden_state.permute(0,2,1)).squeeze(2).detach().cpu().numpy()
+                features[gameid_to_videoid[video_id]] = feats
 
-        out = model(pixel_values, bool_masked_pos)
-        feats = pool_layer(out.logits.permute(0,2,1)).squeeze(2).detach().cpu().numpy()
-        features[gameid_to_videoid[video_id]] = feats
+            with open('finetuned_model_features.pickle', 'wb') as f:
+                pickle.dump(features, f)
 
-    with open('finetuned_model_features.pickle', 'wb') as f:
-        pickle.dump(features, f)
+if __name__ == "__main__":
+    main()

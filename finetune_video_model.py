@@ -77,117 +77,119 @@ class VideoMAEImageProcessorTensor(VideoMAEImageProcessor):
         processed_videos = [super(VideoMAEImageProcessorTensor, self).preprocess(list(x), **kwargs) for x in videos]
         return processed_videos
 
-# Initialize the model and image processor
-model = VideoMAEForPreTraining.from_pretrained("MCG-NJU/videomae-base-finetuned-kinetics")
-image_processor = VideoMAEImageProcessorTensor.from_pretrained("MCG-NJU/videomae-base")
+def main():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
-# Define the loss function
-criterion = torch.nn.MSELoss()
+    batch_size = 1
+    num_workers = 8
+    num_epochs = 2
 
-# Define the optimizer
-optimizer = torch.optim.Adam(model.parameters(), lr=5e-5)
+    # Initialize the model and image processor
+    model = VideoMAEForPreTraining.from_pretrained("MCG-NJU/videomae-base-finetuned-kinetics")
+    image_processor = VideoMAEImageProcessorTensor.from_pretrained("MCG-NJU/videomae-base")
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
+    # Define the loss function
+    criterion = torch.nn.MSELoss()
 
-mean = image_processor.image_mean
-std = image_processor.image_std
-resize_to = image_processor.size['shortest_edge']
+    # Define the optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=5e-5)
 
-num_frames_to_sample = model.config.num_frames
-sample_rate = 8
-fps = 30
-clip_duration = num_frames_to_sample * sample_rate / fps
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
-# Training dataset transformations.
-train_transform = Compose(
-    [
-        Lambda(lambda x: x / 255.0),
-        Normalize(mean, std),
-        RandomShortSideScale(min_size=256, max_size=320),
-        RandomCrop(resize_to),
-        RandomHorizontalFlip(p=0.5),
-    ]
-)
+    mean = image_processor.image_mean
+    std = image_processor.image_std
+    resize_to = image_processor.size['shortest_edge']
 
-# Validation and evaluation datasets' transformations.
-val_transform = Compose(
-    [
-        Lambda(lambda x: x / 255.0),
-        Normalize(mean, std),
-        Resize((resize_to, resize_to)),
-    ]
-)
+    num_frames_to_sample = model.config.num_frames
+    sample_rate = 8
+    fps = 30
+    clip_duration = num_frames_to_sample * sample_rate / fps
 
-base_transform = Compose([
-    ToTensor(),
-])
+    # Training dataset transformations.
+    train_transform = Compose(
+        [
+            Lambda(lambda x: x / 255.0),
+            Normalize(mean, std),
+            RandomShortSideScale(min_size=256, max_size=320),
+            RandomCrop(resize_to),
+            RandomHorizontalFlip(p=0.5),
+        ]
+    )
 
-batch_size = 1
-num_workers = 8
+    # Validation and evaluation datasets' transformations.
+    val_transform = Compose(
+        [
+            Lambda(lambda x: x / 255.0),
+            Normalize(mean, std),
+            Resize((resize_to, resize_to)),
+        ]
+    )
 
-train_dataset = VideoDataset(root_dir='/home/ubuntu/shared_data/pbp_videos/train/', transform=train_transform)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    base_transform = Compose([
+        ToTensor(),
+    ])
 
-val_dataset = VideoDataset(root_dir='/home/ubuntu/shared_data/pbp_videos/val/', transform=val_transform)
-val_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    train_dataset = VideoDataset(root_dir='/home/ubuntu/shared_data/pbp_videos/train/', transform=train_transform)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
-test_dataset = VideoDataset(root_dir='/home/ubuntu/shared_data/pbp_videos/test/', transform=val_transform)
-test_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    val_dataset = VideoDataset(root_dir='/home/ubuntu/shared_data/pbp_videos/val/', transform=val_transform)
+    val_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
-# Alternative Implementation
+    test_dataset = VideoDataset(root_dir='/home/ubuntu/shared_data/pbp_videos/test/', transform=val_transform)
+    test_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
+    train_loss_list = []
 
-train_loss_list = []
+    # Loop through each epoch
+    for epoch in range(num_epochs):
+        # Loop through each batch
+        for batch_idx, video_batch in enumerate(tqdm.tqdm(train_loader)):
+            # Convert the video batch to pixel values and apply normalization
+            pixel_values = torch.from_numpy(np.array([x['pixel_values'] for x in image_processor(video_batch)])).squeeze(1)
+            pixel_values = pixel_values.to(device)
 
-# Loop through each epoch
-num_epochs = 2
-for epoch in range(num_epochs):
-    # Loop through each batch
-    for batch_idx, video_batch in enumerate(tqdm.tqdm(train_loader)):
-        # Convert the video batch to pixel values and apply normalization
-        pixel_values = torch.from_numpy(np.array([x['pixel_values'] for x in image_processor(video_batch)])).squeeze(1)
-        pixel_values = pixel_values.to(device)
+            # Feed the pixel values through the model
+            num_frames = 16
+            num_patches_per_frame = (model.config.image_size // model.config.patch_size) ** 2
+            seq_length = (num_frames // model.config.tubelet_size) * num_patches_per_frame
 
-        # Feed the pixel values through the model
-        num_frames = 16
-        num_patches_per_frame = (model.config.image_size // model.config.patch_size) ** 2
-        seq_length = (num_frames // model.config.tubelet_size) * num_patches_per_frame
+            # bool_masked_pos_list = [torch.randint(0, 2, (1, seq_length)).bool() for _ in range(batch_size)]
+            # bool_masked_pos = torch.cat(bool_masked_pos_list)
+            # bool_masked_pos = bool_masked_pos.to(device)
 
-        # bool_masked_pos_list = [torch.randint(0, 2, (1, seq_length)).bool() for _ in range(batch_size)]
-        # bool_masked_pos = torch.cat(bool_masked_pos_list)
-        # bool_masked_pos = bool_masked_pos.to(device)
+            mask_ratio = 0.9
+            bool_masked_pos = np.ones(seq_length)
+            mask_num = math.ceil(seq_length * mask_ratio)
+            mask = np.random.choice(seq_length, mask_num, replace=False)
+            bool_masked_pos[mask] = 0
+            bool_masked_pos = torch.as_tensor(bool_masked_pos).bool().unsqueeze(0)
+            bool_masked_pos = torch.cat([bool_masked_pos for _ in range(batch_size)])
 
-        mask_ratio = 0.9
-        bool_masked_pos = np.ones(seq_length)
-        mask_num = math.ceil(seq_length * mask_ratio)
-        mask = np.random.choice(seq_length, mask_num, replace=False)
-        bool_masked_pos[mask] = 0
-        bool_masked_pos = torch.as_tensor(bool_masked_pos).bool().unsqueeze(0)
-        bool_masked_pos = torch.cat([bool_masked_pos for _ in range(batch_size)])
+            outputs = model(pixel_values, bool_masked_pos)
 
-        outputs = model(pixel_values, bool_masked_pos)
+            # Calculate the loss
+            loss = outputs.loss
 
-        # Calculate the loss
-        loss = outputs.loss
+            # Backpropagate and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        # Backpropagate and optimize
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            # Save the model every epoch
+            if batch_idx == len(train_loader) - 1:
+                torch.save(model.state_dict(), f"finetuned_model/model_epoch_{epoch}.pt")
 
-        # Save the model every epoch
-        if batch_idx == len(train_loader) - 1:
-            torch.save(model.state_dict(), f"finetuned_model/model_epoch_{epoch}.pt")
+            # Save the training loss every batch
+            if batch_idx % 1 == 0:
+                train_loss_list.append((epoch, batch_idx, loss.item()))
+                np.savetxt("finetuned_model/train_loss.txt", train_loss_list)
 
-        # Save the training loss every batch
-        if batch_idx % 1 == 0:
-            train_loss_list.append((epoch, batch_idx, loss.item()))
-            np.savetxt("finetuned_model/train_loss.txt", train_loss_list)
+            # Print progress
+            if batch_idx % 100 == 0:
+                print(f"Epoch {epoch}, Batch {batch_idx}: Loss = {loss.item()}")
 
-        # Print progress
-        if batch_idx % 100 == 0:
-            print(f"Epoch {epoch}, Batch {batch_idx}: Loss = {loss.item()}")
+if __name__ == "__main__":
+    main()
 
