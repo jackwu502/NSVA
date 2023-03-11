@@ -41,12 +41,15 @@ def get_indices(l, stride=8, batch_size=8):
     x = x.reshape((num_batches, batch_size)).astype(np.uint16)
     return x
 
+def include_filter(filename):
+    return filename.endswith('.mp4') and not filename.endswith('0021800238-376.mp4')
+
 class VideoDatasetFeatures(Dataset):
     def __init__(self, root_dir, transform=None):
         self.root_dir = root_dir
         self.transform = transform
 
-        self.video_files = [f for f in os.listdir(self.root_dir) if os.path.isfile(os.path.join(self.root_dir, f)) and f.endswith('.mp4')]
+        self.video_files = [f for f in os.listdir(self.root_dir) if os.path.isfile(os.path.join(self.root_dir, f)) and include_filter(f)]
 
     def __len__(self):
         return len(self.video_files)
@@ -54,6 +57,10 @@ class VideoDatasetFeatures(Dataset):
     def __getitem__(self, idx):
         video_path = os.path.join(self.root_dir, self.video_files[idx])
         vr = VideoReader(video_path)
+        try:
+            vr = VideoReader(video_path)
+        except:
+            return torch.from_numpy(np.zeros([16, 3, 224, 224]))
 
         # Sample frames
         indices = get_indices(len(vr), batch_size=16)
@@ -123,7 +130,9 @@ def main():
                 # Convert the video batch to pixel values and apply normalization
                 video_batch, fname = batch
                 video_id = fname[0].split('/')[-1].split('.')[0]
-                pixel_values = torch.tensor(np.array([x['pixel_values'] for x in image_processor(video_batch.squeeze(0))])).squeeze(1)
+                #pixel_values = torch.tensor(np.array([x['pixel_values'] for x in image_processor(video_batch.squeeze(0))])).squeeze(1)
+                #print(pixel_values.shape, video_batch.shape)
+                pixel_values = video_batch.squeeze(0)
                 pixel_values = pixel_values.to(device)
 
                 num_frames = 16
